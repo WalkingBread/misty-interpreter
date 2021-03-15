@@ -2,22 +2,19 @@
 #define INTERPRETER_H
 
 #include <string>
-#include "lexer/Token.h"
-#include "lexer/Lexer.h"
+#include "../lexer/Token.h"
+#include "../lexer/Lexer.h"
+#include "../parser/Parser.h"
 
 class Interpreter {
     public:
         Interpreter(std::string code);
-
-        int expr();
+        
+        std::string evaluate();
     
     private:
         Lexer* lexer;
-        Token* current_token;
-
-        void eat(TokenType type);
-
-        int term();
+        Parser* parser;
 };
 
 #endif

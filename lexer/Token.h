@@ -7,7 +7,11 @@ enum class TokenType {
     INTEGER,
     PLUS,
     MINUS,
-    END_OF_FILE 
+    DIV,
+    MULT,
+    LPAREN,
+    RPAREN,
+    END_OF_FILE
 };
 
 class Token {
@@ -18,7 +22,6 @@ class Token {
         Token(TokenType type, std::string value);
 
         bool type_of(TokenType type);
-
 };
 
 #endif

@@ -3,7 +3,7 @@
 #include <string>
 
 #include "lexer/Token.h"
-#include "Interpreter.h"
+#include "interpreter/Interpreter.h"
 
 int main(int argc, char** argv) {
     std::string path = argv[1];
@@ -18,7 +18,7 @@ int main(int argc, char** argv) {
 
     Interpreter interpreter(content);
 
-    std::cout << interpreter.expr();
+    std::cout << interpreter.evaluate();
 
     return 0;
 }

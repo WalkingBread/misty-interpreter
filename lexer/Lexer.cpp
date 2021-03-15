@@ -1,8 +1,6 @@
 #include "Lexer.h"
-#include "Token.h"
 
 #include <iostream>
-#include <string>
 
 Lexer::Lexer(std::string code) {
     this->code = code;
@@ -63,6 +61,26 @@ Token* Lexer::get_next_token() {
         if(current_char == '-') {
             advance();
             return new Token(TokenType::MINUS, "-");
+        }
+
+        if(current_char == '*') {
+            advance();
+            return new Token(TokenType::MULT, "*");
+        }
+
+        if(current_char == '/') {
+            advance();
+            return new Token(TokenType::DIV, "/");
+        }
+
+        if(current_char == '(') {
+            advance();
+            return new Token(TokenType::LPAREN, "(");
+        }
+
+        if(current_char == ')') {
+            advance();
+            return new Token(TokenType::RPAREN, ")");
         }
 
         error();
