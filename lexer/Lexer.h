@@ -27,6 +27,8 @@ class Lexer {
         Token* string();
 
         Token* handle_identifiers();
+
+        void create_keywords();
 };
 
 #endif

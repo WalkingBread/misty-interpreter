@@ -92,10 +92,43 @@ Compare::Compare(AST* left, Token* op, AST* right) {
 }
 
 std::string Compare::visit(std::map<std::string, std::string>* scope) {
-    if(left->visit(scope) == right->visit(scope)) {
-        return "True";
+    if(token->type_of(TokenType::EQUALS)) {
+        if(left->visit(scope) == right->visit(scope)) {
+            return "True";
+        } else {
+            return "False";
+        }
+    } else if(token->type_of(TokenType::NOT_EQUALS)) {
+        if(left->visit(scope) != right->visit(scope)) {
+            return "True";
+        } else {
+            return "False";
+        }
     }
-    return "False";
+    
+}
+
+DoubleCondition::DoubleCondition(AST* left, Token* op, AST* right) {
+    this->token = this->op = op;
+    this->left = left;
+    this->right = right;
+}
+
+std::string DoubleCondition::visit(std::map<std::string, std::string>* scope) {
+    if(token->type_of(TokenType::AND)) {
+        if(left->visit(scope) == "True" && right->visit(scope) == "True") {
+            return "True";
+        } else {
+            return "False";
+        }
+    } else if(token->type_of(TokenType::OR)) {
+        if(left->visit(scope) == "True" || right->visit(scope) == "True") {
+            return "True";
+        } else {
+            return "False";
+        }
+    }
+    
 }
 
 Variable::Variable(Token* token) {
@@ -123,3 +156,19 @@ std::string VariableDeclaration::visit(std::map<std::string, std::string>* scope
 std::string NoOperator::visit(std::map<std::string, std::string>* scope) {
     return "";
 }
+
+Negation::Negation(Token* op, AST* statement) {
+    this->token = this->op = op;
+    this->statement = statement;
+}
+
+std::string Negation::visit(std::map<std::string, std::string>* scope) {
+    std::string value = statement->visit(scope);
+
+    if(value == "True") {
+        return "False";
+    } else if(value == "False") {
+        return "True";
+    }
+}
+

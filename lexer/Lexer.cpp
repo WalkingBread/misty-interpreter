@@ -8,9 +8,18 @@ Lexer::Lexer(std::string code) {
     pos = 0;
     current_char = code[pos];
 
+    create_keywords();
+}
+
+void Lexer::create_keywords() {
     keywords["have"] = new Token(TokenType::VARIABLE_DECL, "have");
     keywords["True"] = new Token(TokenType::BOOLEAN, "True"); 
     keywords["False"] = new Token(TokenType::BOOLEAN, "False");
+    keywords["not"] = new Token(TokenType::NOT, "not");
+    keywords["is"] = new Token(TokenType::EQUALS, "is");
+    keywords["isnt"] = new Token(TokenType::NOT_EQUALS, "isnt");
+    keywords["and"] = new Token(TokenType::AND, "and");
+    keywords["or"] = new Token(TokenType::OR, "or");
 }
 
 void Lexer::error() {
@@ -106,10 +115,33 @@ Token* Lexer::get_next_token() {
             return new Token(TokenType::COMMA, ",");
         }
 
+        if(current_char == '&' && peek() == '&') {
+            advance();
+            advance();
+            return new Token(TokenType::AND, "&&");
+        }
+
+        if(current_char == '|' && peek() == '|') {
+            advance();
+            advance();
+            return new Token(TokenType::OR, "||");
+        }
+
+        if(current_char == '!' && peek() == '=') {
+            advance();
+            advance();
+            return new Token(TokenType::NOT_EQUALS, "==");
+        }
+
+        if(current_char == '!') {
+            advance();
+            return new Token(TokenType::NOT, "!");
+        }
+
         if(current_char == '=' && peek() == '=') {
             advance();
             advance();
-            return new Token(TokenType::COMPARE, "==");
+            return new Token(TokenType::EQUALS, "==");
         }
 
         if(current_char == '=') {

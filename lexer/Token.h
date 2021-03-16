@@ -23,7 +23,12 @@ enum class TokenType {
     END_OF_FILE = 17,
     STRING = 18,
     BOOLEAN = 19,
-    COMPARE = 20
+    EQUALS = 20,
+    NOT_EQUALS = 21,
+    NOT = 22,
+    AND = 23,
+    OR = 24
+
 };
 
 class Token {

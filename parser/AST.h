@@ -95,4 +95,25 @@ class Compare : public AST {
         std::string visit(std::map<std::string, std::string>* scope) override;
 };
 
+class Negation : public AST {
+    public:
+        AST* statement;
+        Token* op;
+
+        Negation(Token* op, AST* statement);
+
+        std::string visit(std::map<std::string, std::string>* scope) override;
+};
+
+class DoubleCondition : public AST {
+    public:
+        AST* left;
+        Token* op;
+        AST* right;
+
+        DoubleCondition(AST* left, Token* op, AST* right);
+
+        std::string visit(std::map<std::string, std::string>* scope) override;
+};
+
 #endif

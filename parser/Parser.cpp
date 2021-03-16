@@ -117,7 +117,8 @@ AST* Parser::factor() {
         case TokenType::PLUS:
         {
             eat(TokenType::PLUS);
-            return new UnaryOperator(token, factor());
+            AST* expr = factor();
+            return new UnaryOperator(token, expr);
         }
         
         case TokenType::MINUS:
@@ -130,6 +131,12 @@ AST* Parser::factor() {
         {
             eat(TokenType::FLOAT);
             return new Value(token);
+        }
+
+        case TokenType::NOT:
+        {
+            eat(TokenType::NOT);
+            return new Negation(token, factor());
         }
 
         case TokenType::BOOLEAN:
@@ -162,12 +169,20 @@ void Parser::eat(TokenType type) {
 AST* Parser::expr() {
     AST* node = term();
 
-    if(current_token->type_of(TokenType::COMPARE)) {
+    if(current_token->type_of(TokenType::EQUALS) || current_token->type_of(TokenType::NOT_EQUALS)) {
         Token* op = current_token;
-        eat(TokenType::COMPARE);
+        eat(current_token->type);
         AST* right = expr();
 
         return new Compare(node, op, right);
+    }
+
+    while(current_token->type_of(TokenType::AND) || current_token->type_of(TokenType::OR)) {
+        Token* op = current_token;
+        eat(current_token->type);
+        AST* right = expr();
+
+        return new DoubleCondition(node, op, right);
     }
 
     while(current_token->type_of(TokenType::PLUS) || current_token->type_of(TokenType::MINUS)) {
