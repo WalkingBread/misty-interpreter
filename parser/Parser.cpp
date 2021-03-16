@@ -101,8 +101,7 @@ AST* Parser::term() {
           current_token->type_of(TokenType::DIV) || 
           current_token->type_of(TokenType::INT_DIV) ||
           current_token->type_of(TokenType::MODULO)
-          ) {
-
+    ) {
         Token* token = current_token;
         eat(current_token->type);
         node = new BinaryOperator(node, token, factor());
@@ -133,6 +132,11 @@ AST* Parser::factor() {
             return new Value(token);
         }
 
+        case TokenType::BOOLEAN:
+        {
+            eat(TokenType::BOOLEAN);
+            return new Value(token);
+        }
         case TokenType::L_PAREN:
         {
             eat(TokenType::L_PAREN);
@@ -157,6 +161,15 @@ void Parser::eat(TokenType type) {
 
 AST* Parser::expr() {
     AST* node = term();
+
+    if(current_token->type_of(TokenType::COMPARE)) {
+        Token* op = current_token;
+        eat(TokenType::COMPARE);
+        AST* right = expr();
+
+        return new Compare(node, op, right);
+    }
+
     while(current_token->type_of(TokenType::PLUS) || current_token->type_of(TokenType::MINUS)) {
         Token* token = current_token;
         eat(current_token->type);

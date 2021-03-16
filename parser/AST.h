@@ -84,4 +84,15 @@ class NoOperator : public AST {
         std::string visit(std::map<std::string, std::string>* scope) override;
 };
 
+class Compare : public AST {
+    public:
+        AST* left;
+        Token* op;
+        AST* right;
+
+        Compare(AST* left, Token* op, AST* right);
+
+        std::string visit(std::map<std::string, std::string>* scope) override;
+};
+
 #endif

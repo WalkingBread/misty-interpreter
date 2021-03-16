@@ -9,6 +9,8 @@ Lexer::Lexer(std::string code) {
     current_char = code[pos];
 
     keywords["have"] = new Token(TokenType::VARIABLE_DECL, "have");
+    keywords["True"] = new Token(TokenType::BOOLEAN, "True"); 
+    keywords["False"] = new Token(TokenType::BOOLEAN, "False");
 }
 
 void Lexer::error() {
@@ -102,6 +104,12 @@ Token* Lexer::get_next_token() {
         if(current_char == ',') {
             advance();
             return new Token(TokenType::COMMA, ",");
+        }
+
+        if(current_char == '=' && peek() == '=') {
+            advance();
+            advance();
+            return new Token(TokenType::COMPARE, "==");
         }
 
         if(current_char == '=') {

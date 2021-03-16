@@ -22,7 +22,8 @@ enum class TokenType {
     SEMICOLON = 16,
     END_OF_FILE = 17,
     STRING = 18,
-    BOOLEAN = 19
+    BOOLEAN = 19,
+    COMPARE = 20
 };
 
 class Token {

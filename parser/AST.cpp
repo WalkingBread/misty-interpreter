@@ -85,6 +85,19 @@ std::string Assign::visit(std::map<std::string, std::string>* scope) {
     return "";
 }
 
+Compare::Compare(AST* left, Token* op, AST* right) {
+    this->token = this->op = op;
+    this->left = left;
+    this->right = right;
+}
+
+std::string Compare::visit(std::map<std::string, std::string>* scope) {
+    if(left->visit(scope) == right->visit(scope)) {
+        return "True";
+    }
+    return "False";
+}
+
 Variable::Variable(Token* token) {
     this->token = token;
     this->value = token->value;

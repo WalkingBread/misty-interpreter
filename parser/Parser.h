@@ -9,8 +9,6 @@
 class Parser {
     public:
         Parser(Lexer* lexer);
-
-        AST* expr();
         AST* parse();
     
     private:
@@ -21,12 +19,15 @@ class Parser {
 
         AST* term();
         AST* factor();
+        AST* expr();
         
         Variable* variable();
         NoOperator* empty();
+
         Assign* assignment_statement();
         AST* statement();
         std::vector<AST*> statement_list();
+
         VariableDeclaration* variable_declaration();
         Compound* compound_statement();
 

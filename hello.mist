@@ -1,3 +1,2 @@
-have x;
-x = 20;
-z = 20.5 % 3;
+x = True == False;
+z = x;
