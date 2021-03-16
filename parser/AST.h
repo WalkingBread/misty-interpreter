@@ -2,32 +2,86 @@
 #define AST_H
 
 #include "../lexer/Token.h"
+#include <vector>
+#include <map>
+#include <cmath>
 
 class AST {
     public:
-        virtual int visit() = 0;
-};
-
-class Num : public AST {
-    public:
-        int value;
         Token* token;
-
-        Num(Token* token);
-
-        int visit();
+        virtual std::string visit(std::map<std::string, std::string>* scope) = 0;
 };
 
-class BinOp : public AST {
+class Value : public AST {
+    public:
+        std::string value;
+
+        Value(Token* token);
+
+        std::string visit(std::map<std::string, std::string>* scope) override;
+};
+
+class BinaryOperator : public AST {
     public:
         AST* left;
         Token* op;
         AST* right;
-        Token* token;
 
-        BinOp(AST* left, Token* op, AST* right);
+        BinaryOperator(AST* left, Token* op, AST* right);
 
-        int visit();
+        std::string visit(std::map<std::string, std::string>* scope) override;
+};
+
+class UnaryOperator : public AST {
+    public:
+        Token* op;
+        AST* expr;
+
+        UnaryOperator(Token* op, AST* expr);
+
+        std::string visit(std::map<std::string, std::string>* scope) override;
+};
+
+class Compound : public AST {
+    public:
+        std::vector<AST*> children;
+
+        std::string visit(std::map<std::string, std::string>* scope) override;
+};
+
+class Variable : public AST {
+    public:
+        std::string value;
+
+        Variable(Token* token);
+
+        std::string visit(std::map<std::string, std::string>* scope) override;
+};
+
+class VariableDeclaration : public AST {
+    public:     
+        std::vector<Variable*> variables;
+
+        VariableDeclaration(std::vector<Variable*> variables);
+
+        std::string visit(std::map<std::string, std::string>* scope) override;
+};
+
+class Assign : public AST {
+    public:
+        Variable* left;
+        Token* op;
+        AST* right;
+
+        Assign(Variable* left, Token* op, AST* right);
+
+        std::string visit(std::map<std::string, std::string>* scope) override;
+};
+
+
+class NoOperator : public AST {
+    public:
+        std::string visit(std::map<std::string, std::string>* scope) override;
 };
 
 #endif

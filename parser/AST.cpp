@@ -1,30 +1,112 @@
 #include "AST.h"
 #include <iostream>
 
-Num::Num(Token* token) {
+Value::Value(Token* token) {
     this->token = token;
-    this->value = std::stoi(token->value);
+    this->value = token->value;
 }
 
-int Num::visit() {
+std::string Value::visit(std::map<std::string, std::string>* scope) {
     return value;
 }
 
-BinOp::BinOp(AST* left, Token* op, AST* right) {
+BinaryOperator::BinaryOperator(AST* left, Token* op, AST* right) {
     this->token = op;
     this->op = op;
     this->left = left;
     this->right = right;
 }
 
-int BinOp::visit() {
-    if(op->type_of(TokenType::PLUS)) {
-        return left->visit() + right->visit();
-    } else if(op->type_of(TokenType::MINUS)) {
-        return left->visit() - right->visit();
-    } else if(op->type_of(TokenType::DIV)) {
-        return left->visit() / right->visit();
-    } else if(op->type_of(TokenType::MULT)) {
-        return left->visit() * right->visit();
+std::string BinaryOperator::visit(std::map<std::string, std::string>* scope) {
+    double x = std::stod(left->visit(scope));
+    double y = std::stod(right->visit(scope));
+
+    switch(op->type) {
+        case TokenType::PLUS:
+        {
+            return std::to_string(x + y);
+        }
+        case TokenType::MINUS:
+        {
+            return std::to_string(x - y);
+        }
+        case TokenType::DIV:
+        {
+            return std::to_string(x / y);
+        }
+        case TokenType::MULT:
+        {
+            return std::to_string(x * y);
+        }
+        case TokenType::INT_DIV:
+        {
+            int a = (int) x;
+            int b = (int) y;
+
+            return std::to_string(a / b);
+        }
+        case TokenType::MODULO:
+        {
+            return std::to_string(fmod(x, y));
+        }
     }
+}
+
+UnaryOperator::UnaryOperator(Token* op, AST* expr) {
+    this->token = this->op = op;
+    this->expr = expr;
+}
+
+std::string UnaryOperator::visit(std::map<std::string, std::string>* scope) {
+    if(op->type_of(TokenType::MINUS)) {
+        double value = std::stod(expr->visit(scope));
+        return std::to_string(-value);
+    } 
+    return expr->visit(scope);
+}
+
+std::string Compound::visit(std::map<std::string, std::string>* scope) {
+    for(AST* node : children) {
+        node->visit(scope);
+    }
+    return "";
+}
+
+Assign::Assign(Variable* left, Token* op, AST* right) {
+    this->token = this->op = op;
+    this->left = left;
+    this->right = right;
+}
+
+std::string Assign::visit(std::map<std::string, std::string>* scope) {
+    std::string var_name = left->value;
+    std::map<std::string, std::string> &t_scope = *scope;
+    t_scope[var_name] = right->visit(scope);
+    return "";
+}
+
+Variable::Variable(Token* token) {
+    this->token = token;
+    this->value = token->value;
+}
+
+std::string Variable::visit(std::map<std::string, std::string>* scope) {
+    if(scope->find(value) != scope->end()) {
+        return scope->find(value)->second;
+    } else {
+        std::cout << "Name error" << std::endl;
+        exit(0);
+    }
+}
+
+VariableDeclaration::VariableDeclaration(std::vector<Variable*> variables) {
+    this->variables = variables;
+}
+
+std::string VariableDeclaration::visit(std::map<std::string, std::string>* scope) {
+    return "";
+}
+
+std::string NoOperator::visit(std::map<std::string, std::string>* scope) {
+    return "";
 }

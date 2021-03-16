@@ -4,8 +4,6 @@
 Token::Token(TokenType type, std::string value) {
     this->type = type;
     this->value = value;
-
-    std::cout << value << std::endl;
 }
 
 bool Token::type_of(TokenType type) {

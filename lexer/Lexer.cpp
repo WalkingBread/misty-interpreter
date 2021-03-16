@@ -7,6 +7,8 @@ Lexer::Lexer(std::string code) {
 
     pos = 0;
     current_char = code[pos];
+
+    keywords["have"] = new Token(TokenType::VARIABLE_DECL, "have");
 }
 
 void Lexer::error() {
@@ -23,21 +25,63 @@ void Lexer::advance() {
     }
 }
 
+char Lexer::peek() {
+    int peek_pos = pos + 1;
+    if(peek_pos > code.length() - 1) {
+        return NULL;
+    }
+    return code[peek_pos];
+}
+
 void Lexer::skip_whitespace() {
     while(current_char != NULL && current_char == ' ') {
         advance();
     }
 }
 
-int Lexer::integer() {
+Token* Lexer::number() {
     std::string result = "";
 
     while(current_char != NULL && isdigit(current_char)) {
         result += current_char;
         advance();
     }
-    return std::stoi(result);
+
+    if(current_char == '.') {
+        result += current_char;
+        advance();
+
+        while(current_char != NULL && isdigit(current_char)) {
+            result += current_char;
+            advance();
+        }
+    }
+    
+    return new Token(TokenType::FLOAT, result);
 }
+
+Token* Lexer::string() {
+    std::string result = "";
+
+    while(current_char != NULL && current_char != '\'') {
+        
+    }
+}
+
+Token* Lexer::handle_identifiers() {
+    std::string result = "";
+
+    while(current_char != NULL && isalnum(current_char)) {
+        result += current_char;
+        advance();
+    }
+
+    if(keywords.find(result) != keywords.end()) {
+        return keywords.find(result)->second;
+    }
+    return new Token(TokenType::IDENTIFIER, result);
+}
+
 
 Token* Lexer::get_next_token() {
 
@@ -48,9 +92,26 @@ Token* Lexer::get_next_token() {
         }
 
         if(isdigit(current_char)) {
-            std::string value = std::to_string(integer());
+            return number();
+        }
 
-            return new Token(TokenType::INTEGER, value);
+        if(isalpha(current_char)) {
+            return handle_identifiers();
+        }
+
+        if(current_char == ',') {
+            advance();
+            return new Token(TokenType::COMMA, ",");
+        }
+
+        if(current_char == '=') {
+            advance();
+            return new Token(TokenType::ASSIGN, "=");
+        }
+
+        if(current_char == ';') {
+            advance();
+            return new Token(TokenType::SEMICOLON, ";");
         }
 
         if(current_char == '+') {
@@ -68,19 +129,30 @@ Token* Lexer::get_next_token() {
             return new Token(TokenType::MULT, "*");
         }
 
+        if(current_char == '/' && peek() == '/') {
+            advance();
+            advance();
+            return new Token(TokenType::INT_DIV, "//");
+        }
+
         if(current_char == '/') {
             advance();
             return new Token(TokenType::DIV, "/");
         }
 
+        if(current_char == '%') {
+            advance();
+            return new Token(TokenType::MODULO, "%");
+        }
+
         if(current_char == '(') {
             advance();
-            return new Token(TokenType::LPAREN, "(");
+            return new Token(TokenType::L_PAREN, "(");
         }
 
         if(current_char == ')') {
             advance();
-            return new Token(TokenType::RPAREN, ")");
+            return new Token(TokenType::R_PAREN, ")");
         }
 
         error();

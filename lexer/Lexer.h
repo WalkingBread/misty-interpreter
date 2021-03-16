@@ -2,10 +2,13 @@
 #define LEXER_H
 
 #include <string>
+#include <map>
 #include "Token.h"
 
 class Lexer {
     public:
+        std::map<std::string, Token*> keywords;
+        
         Lexer(std::string code);
 
         Token* get_next_token();
@@ -18,8 +21,12 @@ class Lexer {
 
         void skip_whitespace();
         void advance();
+        
+        char peek();
+        Token* number();
+        Token* string();
 
-        int integer();
+        Token* handle_identifiers();
 };
 
 #endif

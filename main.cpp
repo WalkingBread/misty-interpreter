@@ -18,7 +18,9 @@ int main(int argc, char** argv) {
 
     Interpreter interpreter(content);
 
-    std::cout << interpreter.evaluate();
+    interpreter.evaluate();
+    std::cout << interpreter.global_scope.find("x")->second << std::endl;
+    std::cout << interpreter.global_scope.find("z")->second << std::endl;
 
     return 0;
 }

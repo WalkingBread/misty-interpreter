@@ -7,7 +7,7 @@ Interpreter::Interpreter(std::string code) {
 }
 
 std::string Interpreter::evaluate() {
-    AST* tree = parser->expr();
-    return std::to_string(tree->visit());
+    AST* tree = parser->parse();
+    return tree->visit(&global_scope);
 }
 
