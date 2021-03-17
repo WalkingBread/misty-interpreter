@@ -1,2 +1,4 @@
-x = (True && False) && True;
-z = not x != False and 2 != 3;
+a = 20;
+b = 20;
+c = 40;
+x = a != b and c != 40;

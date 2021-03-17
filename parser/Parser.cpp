@@ -97,6 +97,20 @@ AST* Parser::statement() {
 AST* Parser::term() {
     AST* node = factor();
 
+    if(current_token->type_of(TokenType::EQUALS) || current_token->type_of(TokenType::NOT_EQUALS)) {
+        std::vector<AST*> comparables = { node };
+        std::vector<Token*> operators;
+
+        while(current_token->type_of(TokenType::EQUALS) || current_token->type_of(TokenType::NOT_EQUALS)) {
+            Token* op = current_token;
+            eat(current_token->type);
+
+            comparables.push_back(factor());
+            operators.push_back(op);
+        }
+        return new Compare(comparables, operators);
+    }
+
     while(current_token->type_of(TokenType::MULT) || 
           current_token->type_of(TokenType::DIV) || 
           current_token->type_of(TokenType::INT_DIV) ||
@@ -169,20 +183,11 @@ void Parser::eat(TokenType type) {
 AST* Parser::expr() {
     AST* node = term();
 
-    if(current_token->type_of(TokenType::EQUALS) || current_token->type_of(TokenType::NOT_EQUALS)) {
-        Token* op = current_token;
-        eat(current_token->type);
-        AST* right = expr();
-
-        return new Compare(node, op, right);
-    }
-
     while(current_token->type_of(TokenType::AND) || current_token->type_of(TokenType::OR)) {
         Token* op = current_token;
         eat(current_token->type);
-        AST* right = expr();
 
-        return new DoubleCondition(node, op, right);
+        node = new DoubleCondition(node, op, expr());
     }
 
     while(current_token->type_of(TokenType::PLUS) || current_token->type_of(TokenType::MINUS)) {

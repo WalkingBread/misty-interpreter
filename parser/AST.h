@@ -90,7 +90,10 @@ class Compare : public AST {
         Token* op;
         AST* right;
 
-        Compare(AST* left, Token* op, AST* right);
+        std::vector<AST*> comparables;
+        std::vector<Token*> operators;
+
+        Compare(std::vector<AST*> comparables, std::vector<Token*> operators);
 
         std::string visit(std::map<std::string, std::string>* scope) override;
 };

@@ -85,27 +85,28 @@ std::string Assign::visit(std::map<std::string, std::string>* scope) {
     return "";
 }
 
-Compare::Compare(AST* left, Token* op, AST* right) {
-    this->token = this->op = op;
-    this->left = left;
-    this->right = right;
+Compare::Compare(std::vector<AST*> comparables, std::vector<Token*> operators) {
+    this->comparables = comparables;
+    this->operators = operators;
 }
 
 std::string Compare::visit(std::map<std::string, std::string>* scope) {
-    if(token->type_of(TokenType::EQUALS)) {
-        if(left->visit(scope) == right->visit(scope)) {
-            return "True";
-        } else {
-            return "False";
-        }
-    } else if(token->type_of(TokenType::NOT_EQUALS)) {
-        if(left->visit(scope) != right->visit(scope)) {
-            return "True";
-        } else {
-            return "False";
+    for(int i = 0; i < operators.size(); i++) {
+        Token* op = operators.at(i);
+        AST* left = comparables[i];
+        AST* right = comparables[i + 1];
+
+        if(op->type_of(TokenType::EQUALS)) {
+            if(left->visit(scope) != right->visit(scope)) {
+                return "False";
+            }
+        } else if(op->type_of(TokenType::NOT_EQUALS)) {
+            if(left->visit(scope) == right->visit(scope)) {
+                return "False";
+            }
         }
     }
-    
+    return "True";
 }
 
 DoubleCondition::DoubleCondition(AST* left, Token* op, AST* right) {
