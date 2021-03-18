@@ -20,6 +20,7 @@ void Lexer::create_keywords() {
     keywords["isnt"] = new Token(TokenType::NOT_EQUALS, "isnt");
     keywords["and"] = new Token(TokenType::AND, "and");
     keywords["or"] = new Token(TokenType::OR, "or");
+    keywords["None"] = new Token(TokenType::NONE, "None");
 }
 
 void Lexer::error() {

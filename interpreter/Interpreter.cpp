@@ -1,6 +1,16 @@
 #include <iostream>
 #include "Interpreter.h"
 
+std::string 
+    TRUE = "True", 
+    FALSE = "False";
+
+
+void Interpreter::type_mismatch_error() {
+    std::cout << "Type mismatch error" << std::endl;
+    exit(0);
+}
+
 Interpreter::Interpreter(std::string code) {
     lexer = new Lexer(code);
     parser = new Parser(lexer);
@@ -46,8 +56,15 @@ MemoryValue* Interpreter::visit(AST* node) {
 }
 
 MemoryValue* Interpreter::visit_binary_op(BinaryOperator* op) {
-    double x = std::stod(visit(op->left)->value);
-    double y = std::stod(visit(op->right)->value);
+    MemoryValue* left = visit(op->left);
+    MemoryValue* right = visit(op->right);
+
+    if(left->type != Type::FLOAT || right->type != Type::FLOAT) {
+        type_mismatch_error();
+    }
+
+    double x = std::stod(left->value);
+    double y = std::stod(right->value);
 
     switch(op->op->type) {
         case TokenType::PLUS:
@@ -82,8 +99,13 @@ MemoryValue* Interpreter::visit_binary_op(BinaryOperator* op) {
 
 MemoryValue* Interpreter::visit_unary_op(UnaryOperator* op) {
     if(op->op->type_of(TokenType::MINUS)) {
-        double value = std::stod(visit(op->expr)->value);
-        return new MemoryValue(std::to_string(-value), Type::FLOAT);
+        if(visit(op->expr)->type == Type::FLOAT) {
+            double value = std::stod(visit(op->expr)->value);
+            return new MemoryValue(std::to_string(-value), Type::FLOAT);
+
+        } else {
+            type_mismatch_error();
+        }
     } 
     return visit(op->expr);
 }
@@ -99,7 +121,10 @@ MemoryValue* Interpreter::visit_value(Value* val) {
 
     } else if(val->token->type_of(TokenType::STRING)) {
         type = Type::STRING;
-    } 
+
+    } else if(val->token->type_of(TokenType::NONE)) {
+        type = Type::NONE;
+    }
 
     return new MemoryValue(val->value, type);
 }
@@ -112,15 +137,15 @@ MemoryValue* Interpreter::visit_compare(Compare* c) {
 
         if(op->type_of(TokenType::EQUALS)) {
             if(visit(left)->value != visit(right)->value) {
-                return new MemoryValue("False", Type::BOOLEAN);
+                return new MemoryValue(FALSE, Type::BOOLEAN);
             }
         } else if(op->type_of(TokenType::NOT_EQUALS)) {
             if(visit(left)->value == visit(right)->value) {
-                return new MemoryValue("False", Type::BOOLEAN);
+                return new MemoryValue(FALSE, Type::BOOLEAN);
             }
         }
     }
-    return new MemoryValue("True", Type::BOOLEAN);
+    return new MemoryValue(TRUE, Type::BOOLEAN);
 }
 
 MemoryValue* Interpreter::visit_compound(Compound* comp) {
@@ -154,16 +179,17 @@ MemoryValue* Interpreter::visit_no_operator(NoOperator* no_op) {
 
 MemoryValue* Interpreter::visit_double_condition(DoubleCondition* cond) {
     if(cond->token->type_of(TokenType::AND)) {
-        if(visit(cond->left)->value == "True" && visit(cond->right)->value == "True") {
-            return new MemoryValue("True", Type::BOOLEAN);
+        if(visit(cond->left)->value == TRUE && visit(cond->right)->value == TRUE) {
+            return new MemoryValue(TRUE, Type::BOOLEAN);
         } else {
-            return new MemoryValue("False", Type::BOOLEAN);
+            return new MemoryValue(FALSE, Type::BOOLEAN);
         }
+
     } else if(cond->token->type_of(TokenType::OR)) {
-        if(visit(cond->left)->value == "True" || visit(cond->right)->value == "True") {
-            return new MemoryValue("True", Type::BOOLEAN);
+        if(visit(cond->left)->value == TRUE || visit(cond->right)->value == TRUE) {
+            return new MemoryValue(TRUE, Type::BOOLEAN);
         } else {
-            return new MemoryValue("False", Type::BOOLEAN);
+            return new MemoryValue(FALSE, Type::BOOLEAN);
         }
     }
 }
@@ -171,10 +197,14 @@ MemoryValue* Interpreter::visit_double_condition(DoubleCondition* cond) {
 MemoryValue* Interpreter::visit_negation(Negation* neg) {
     MemoryValue* value = visit(neg->statement);
 
-    if(value->value == "True") {
-        return new MemoryValue("False", Type::BOOLEAN);
-    } else if(value->value == "False") {
-        return new MemoryValue("True", Type::BOOLEAN);
+    if(value->type != Type::BOOLEAN) {
+        type_mismatch_error();
+    }
+
+    if(value->value == TRUE) {
+        return new MemoryValue(FALSE, Type::BOOLEAN);
+    } else if(value->value == FALSE) {
+        return new MemoryValue(TRUE, Type::BOOLEAN);
     }
 }
 

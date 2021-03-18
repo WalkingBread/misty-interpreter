@@ -158,6 +158,11 @@ AST* Parser::factor() {
             eat(TokenType::BOOLEAN);
             return new Value(token);
         }
+        case TokenType::NONE:
+        {
+            eat(TokenType::NONE);
+            return new Value(token);
+        }
         case TokenType::L_PAREN:
         {
             eat(TokenType::L_PAREN);

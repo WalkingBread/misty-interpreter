@@ -27,7 +27,12 @@ enum class TokenType {
     NOT_EQUALS = 21,
     NOT = 22,
     AND = 23,
-    OR = 24
+    OR = 24,
+    NONE = 25,
+    IF = 26,
+    INT_CAST = 27,
+    STR_CAST = 28,
+    PRINT = 29
 };
 
 

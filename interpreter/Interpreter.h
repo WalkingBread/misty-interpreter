@@ -34,6 +34,8 @@ class Interpreter {
         MemoryValue* visit_double_condition(DoubleCondition* cond);
         MemoryValue* visit_negation(Negation* neg);
         MemoryValue* visit_var_declaration(VariableDeclaration* decl);
+
+        void type_mismatch_error();
 };
 
 #endif
