@@ -9,7 +9,8 @@
 class AST {
     public:
         Token* token;
-        virtual std::string visit(std::map<std::string, std::string>* scope) = 0;
+
+        virtual ~AST() = 0;
 };
 
 class Value : public AST {
@@ -17,8 +18,7 @@ class Value : public AST {
         std::string value;
 
         Value(Token* token);
-
-        std::string visit(std::map<std::string, std::string>* scope) override;
+        ~Value() override {};
 };
 
 class BinaryOperator : public AST {
@@ -28,8 +28,8 @@ class BinaryOperator : public AST {
         AST* right;
 
         BinaryOperator(AST* left, Token* op, AST* right);
+        ~BinaryOperator() override {};
 
-        std::string visit(std::map<std::string, std::string>* scope) override;
 };
 
 class UnaryOperator : public AST {
@@ -38,15 +38,15 @@ class UnaryOperator : public AST {
         AST* expr;
 
         UnaryOperator(Token* op, AST* expr);
+        ~UnaryOperator() override {};
 
-        std::string visit(std::map<std::string, std::string>* scope) override;
 };
 
 class Compound : public AST {
     public:
         std::vector<AST*> children;
+        ~Compound() override {};
 
-        std::string visit(std::map<std::string, std::string>* scope) override;
 };
 
 class Variable : public AST {
@@ -54,8 +54,7 @@ class Variable : public AST {
         std::string value;
 
         Variable(Token* token);
-
-        std::string visit(std::map<std::string, std::string>* scope) override;
+        ~Variable() override {};
 };
 
 class VariableDeclaration : public AST {
@@ -63,8 +62,7 @@ class VariableDeclaration : public AST {
         std::vector<Variable*> variables;
 
         VariableDeclaration(std::vector<Variable*> variables);
-
-        std::string visit(std::map<std::string, std::string>* scope) override;
+        ~VariableDeclaration() override {};
 };
 
 class Assign : public AST {
@@ -74,15 +72,11 @@ class Assign : public AST {
         AST* right;
 
         Assign(Variable* left, Token* op, AST* right);
-
-        std::string visit(std::map<std::string, std::string>* scope) override;
+        ~Assign() override {};
 };
 
 
-class NoOperator : public AST {
-    public:
-        std::string visit(std::map<std::string, std::string>* scope) override;
-};
+class NoOperator : public AST {};
 
 class Compare : public AST {
     public:
@@ -94,8 +88,7 @@ class Compare : public AST {
         std::vector<Token*> operators;
 
         Compare(std::vector<AST*> comparables, std::vector<Token*> operators);
-
-        std::string visit(std::map<std::string, std::string>* scope) override;
+        ~Compare() override {};
 };
 
 class Negation : public AST {
@@ -104,8 +97,7 @@ class Negation : public AST {
         Token* op;
 
         Negation(Token* op, AST* statement);
-
-        std::string visit(std::map<std::string, std::string>* scope) override;
+        ~Negation() override {};
 };
 
 class DoubleCondition : public AST {
@@ -115,8 +107,7 @@ class DoubleCondition : public AST {
         AST* right;
 
         DoubleCondition(AST* left, Token* op, AST* right);
-
-        std::string visit(std::map<std::string, std::string>* scope) override;
+        ~DoubleCondition() override {};
 };
 
 #endif

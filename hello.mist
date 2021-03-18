@@ -1,4 +1,6 @@
+have a, b, c, x;
+
 a = 20;
 b = 20;
 c = 40;
-x = a != b and c != 40;
+x = a == b and (c != 40 or b != 20);

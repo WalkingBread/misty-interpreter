@@ -28,8 +28,46 @@ enum class TokenType {
     NOT = 22,
     AND = 23,
     OR = 24
+};
+
+
+/*class TokenType {
+    public:
+        std::string str;
+
+        TokenType(std::string str) {
+            this->str = str;
+        }
 
 };
+
+const TokenType 
+        FLOAT("FLOAT"), 
+        PLUS("+"),
+        MINUS("-"),
+        DIV("/"),
+        INT_DIV("//"),
+        MULT("*"),
+        MODULO("%"),
+        L_PAREN("("),
+        R_PAREN(")"),
+        L_CURLY("{"),
+        R_CURLY("}"),
+        L_SQUARED("["),
+        R_SQUARED("]"),
+        IDENTIFIER("ID"),
+        VARIABLE_DECL("VAR_DECL"),
+        COMMA(","),
+        ASSIGN("="),
+        SEMICOLON(";"),
+        STRING("STRING"),
+        BOOLEAN("BOOL"),
+        EQUALS("=="),
+        NOT_EQUALS("!="),
+        NOT("!"),
+        AND("&&"),
+        OR("||");*/
+
 
 class Token {
     public:
