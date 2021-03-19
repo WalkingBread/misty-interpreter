@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include "../lexer/Lexer.h"
+#include "../Values.h"
 #include "AST.h"
 
 class Parser {
@@ -30,6 +31,7 @@ class Parser {
 
         VariableDeclaration* variable_declaration();
         IfCondition* if_statement();
+        IfCondition* else_statement();
         Compound* compound_statement();
 
         void error();

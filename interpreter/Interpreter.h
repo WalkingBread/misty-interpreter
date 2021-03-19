@@ -8,6 +8,7 @@
 #include "../parser/Parser.h"
 #include "Memory.h"
 #include "SymbolTableBuilder.h"
+#include "../Values.h"
 
 class Interpreter {
     public:

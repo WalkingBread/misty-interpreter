@@ -1,11 +1,6 @@
 #include <iostream>
 #include "Interpreter.h"
 
-std::string 
-    TRUE = "True", 
-    FALSE = "False";
-
-
 void Interpreter::type_mismatch_error() {
     std::cout << "Type mismatch error" << std::endl;
     exit(0);
@@ -139,15 +134,15 @@ MemoryValue* Interpreter::visit_compare(Compare* c) {
 
         if(op->type_of(TokenType::EQUALS)) {
             if(visit(left)->value != visit(right)->value) {
-                return new MemoryValue(FALSE, Type::BOOLEAN);
+                return new MemoryValue(Values::FALSE, Type::BOOLEAN);
             }
         } else if(op->type_of(TokenType::NOT_EQUALS)) {
             if(visit(left)->value == visit(right)->value) {
-                return new MemoryValue(FALSE, Type::BOOLEAN);
+                return new MemoryValue(Values::FALSE, Type::BOOLEAN);
             }
         }
     }
-    return new MemoryValue(TRUE, Type::BOOLEAN);
+    return new MemoryValue(Values::TRUE, Type::BOOLEAN);
 }
 
 MemoryValue* Interpreter::visit_compound(Compound* comp) {
@@ -181,17 +176,17 @@ MemoryValue* Interpreter::visit_no_operator(NoOperator* no_op) {
 
 MemoryValue* Interpreter::visit_double_condition(DoubleCondition* cond) {
     if(cond->token->type_of(TokenType::AND)) {
-        if(visit(cond->left)->value == TRUE && visit(cond->right)->value == TRUE) {
-            return new MemoryValue(TRUE, Type::BOOLEAN);
+        if(visit(cond->left)->value == Values::TRUE && visit(cond->right)->value == Values::TRUE) {
+            return new MemoryValue(Values::TRUE, Type::BOOLEAN);
         } else {
-            return new MemoryValue(FALSE, Type::BOOLEAN);
+            return new MemoryValue(Values::FALSE, Type::BOOLEAN);
         }
 
     } else if(cond->token->type_of(TokenType::OR)) {
-        if(visit(cond->left)->value == TRUE || visit(cond->right)->value == TRUE) {
-            return new MemoryValue(TRUE, Type::BOOLEAN);
+        if(visit(cond->left)->value == Values::TRUE || visit(cond->right)->value == Values::TRUE) {
+            return new MemoryValue(Values::TRUE, Type::BOOLEAN);
         } else {
-            return new MemoryValue(FALSE, Type::BOOLEAN);
+            return new MemoryValue(Values::FALSE, Type::BOOLEAN);
         }
     }
 }
@@ -203,10 +198,10 @@ MemoryValue* Interpreter::visit_negation(Negation* neg) {
         type_mismatch_error();
     }
 
-    if(value->value == TRUE) {
-        return new MemoryValue(FALSE, Type::BOOLEAN);
-    } else if(value->value == FALSE) {
-        return new MemoryValue(TRUE, Type::BOOLEAN);
+    if(value->value == Values::TRUE) {
+        return new MemoryValue(Values::FALSE, Type::BOOLEAN);
+    } else if(value->value == Values::FALSE) {
+        return new MemoryValue(Values::TRUE, Type::BOOLEAN);
     }
 }
 
@@ -218,8 +213,15 @@ MemoryValue* Interpreter::visit_if_condition(IfCondition* cond) {
     AST* condition = cond->condition;
     Compound* statement = cond->statement;
 
-    if(visit(condition)->value == TRUE) {
+    if(visit(condition)->value == Values::TRUE) {
         visit(statement);
+    } else {
+        for(IfCondition* else_ : cond->elses) {
+            if(visit(else_->condition)->value == Values::TRUE) {
+                visit(else_->statement);
+                return NULL;
+            }
+        }
     }
     return NULL;
 }

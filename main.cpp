@@ -20,8 +20,6 @@ int main(int argc, char** argv) {
 
     interpreter.evaluate();
     std::cout << interpreter.global_memory->str();
-    std::cout << interpreter.global_memory->get("x")->value << std::endl;
-    std::cout << interpreter.global_memory->get("z")->value << std::endl;
 
     return 0;
 }

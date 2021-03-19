@@ -115,6 +115,8 @@ class IfCondition : public AST {
         AST* condition;
         Compound* statement;
 
+        std::vector<IfCondition*> elses;
+
         IfCondition(AST* condition, Compound* statement);
         ~IfCondition() override {};
 };

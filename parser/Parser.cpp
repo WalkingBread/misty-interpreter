@@ -81,14 +81,22 @@ IfCondition* Parser::if_statement() {
     return new IfCondition(condition, statement);
 }
 
+IfCondition* Parser::else_statement() {
+    eat(TokenType::ELSE);
+    if(current_token->type_of(TokenType::IF)) {
+        return if_statement();
+
+    } else if(current_token->type_of(TokenType::L_CURLY)) {
+        AST* condition = new Value(new Token(TokenType::BOOLEAN, Values::TRUE));
+
+        return new IfCondition(condition, compound_statement());
+    }
+}
+
 AST* Parser::statement() {
     AST* node;
 
     switch(current_token->type) {
-        case TokenType::L_CURLY:
-            node = compound_statement();
-            break;
-
         case TokenType::VARIABLE_DECL:
             node = variable_declaration();
             break;
@@ -98,8 +106,15 @@ AST* Parser::statement() {
             break;
 
         case TokenType::IF:
-            node = if_statement();
+        {
+            IfCondition* cond = if_statement();
+            while(current_token->type_of(TokenType::ELSE)) {
+                cond->elses.push_back(else_statement());
+            }
+
+            node = cond;
             break;
+        }
 
         default:
             node = empty();

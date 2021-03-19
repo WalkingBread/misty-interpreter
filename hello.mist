@@ -6,6 +6,11 @@ c = 40;
 d = 1.52324;
 
 x = a == b and (c != 40 or b != 20);
+
 if(x isnt False and b == 20) {
     a = 40;
+} else {
+    a = 10;
+} else if(b == 20) {
+    a = 30;
 }
