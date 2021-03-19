@@ -71,6 +71,16 @@ Assign* Parser::assignment_statement() {
     return new Assign(left, token, right);
 }
 
+IfCondition* Parser::if_statement() {
+    eat(TokenType::IF);
+    eat(TokenType::L_PAREN);
+    AST* condition = expr();
+    eat(TokenType::R_PAREN);
+
+    Compound* statement = compound_statement();
+    return new IfCondition(condition, statement);
+}
+
 AST* Parser::statement() {
     AST* node;
 
@@ -85,6 +95,10 @@ AST* Parser::statement() {
 
         case TokenType::IDENTIFIER:
             node = assignment_statement();
+            break;
+
+        case TokenType::IF:
+            node = if_statement();
             break;
 
         default:
@@ -181,7 +195,10 @@ void Parser::eat(TokenType type) {
     if(current_token->type == type) {
         current_token = lexer->get_next_token();
     } else {
-        lexer->error();
+        int current_type = static_cast<int>(current_token->type);
+        int expected_type = static_cast<int>(type);
+
+        lexer->error("Unexpected token: Found: " + std::to_string(current_type) + " Instead of: " + std::to_string(expected_type));
     }
 }
 

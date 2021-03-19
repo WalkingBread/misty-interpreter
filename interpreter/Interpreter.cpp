@@ -52,6 +52,8 @@ MemoryValue* Interpreter::visit(AST* node) {
         
     } else if(VariableDeclaration* ast = dynamic_cast<VariableDeclaration*>(node)) {
         return visit_var_declaration(ast);
+    } else if(IfCondition* ast = dynamic_cast<IfCondition*>(node)) {
+        return visit_if_condition(ast);
     } 
 }
 
@@ -209,6 +211,16 @@ MemoryValue* Interpreter::visit_negation(Negation* neg) {
 }
 
 MemoryValue* Interpreter::visit_var_declaration(VariableDeclaration* decl) {
+    return NULL;
+}
+
+MemoryValue* Interpreter::visit_if_condition(IfCondition* cond) {
+    AST* condition = cond->condition;
+    Compound* statement = cond->statement;
+
+    if(visit(condition)->value == TRUE) {
+        visit(statement);
+    }
     return NULL;
 }
 

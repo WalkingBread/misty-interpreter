@@ -33,7 +33,9 @@ void SymbolTableBuilder::visit(AST* node) {
         
     } else if(VariableDeclaration* ast = dynamic_cast<VariableDeclaration*>(node)) {
         visit_var_declaration(ast);
-        
+
+    } else if(IfCondition* ast = dynamic_cast<IfCondition*>(node)) {
+        visit_if_condition(ast);
     } 
 }
 
@@ -106,4 +108,9 @@ void SymbolTableBuilder::visit_var_declaration(VariableDeclaration* decl) {
 
         table->define(symbol);
     }
+}
+
+void SymbolTableBuilder::visit_if_condition(IfCondition* cond) {
+    visit(cond->condition);
+    visit(cond->statement);
 }

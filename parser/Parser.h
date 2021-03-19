@@ -29,6 +29,7 @@ class Parser {
         std::vector<AST*> statement_list();
 
         VariableDeclaration* variable_declaration();
+        IfCondition* if_statement();
         Compound* compound_statement();
 
         void error();

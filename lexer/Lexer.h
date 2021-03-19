@@ -12,7 +12,7 @@ class Lexer {
         Lexer(std::string code);
 
         Token* get_next_token();
-        void error();
+        void error(std::string message);
 
     private:
         int pos;

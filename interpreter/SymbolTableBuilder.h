@@ -28,6 +28,7 @@ class SymbolTableBuilder {
         void visit_double_condition(DoubleCondition* cond);
         void visit_negation(Negation* neg);
         void visit_var_declaration(VariableDeclaration* decl);
+        void visit_if_condition(IfCondition* cond);
 
         void name_error(std::string name);
 };

@@ -110,4 +110,13 @@ class DoubleCondition : public AST {
         ~DoubleCondition() override {};
 };
 
+class IfCondition : public AST {
+    public:
+        AST* condition;
+        Compound* statement;
+
+        IfCondition(AST* condition, Compound* statement);
+        ~IfCondition() override {};
+};
+
 #endif

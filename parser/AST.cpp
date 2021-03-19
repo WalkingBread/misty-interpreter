@@ -15,12 +15,10 @@ BinaryOperator::BinaryOperator(AST* left, Token* op, AST* right) {
     this->right = right;
 }
 
-
 UnaryOperator::UnaryOperator(Token* op, AST* expr) {
     this->token = this->op = op;
     this->expr = expr;
 }
-
 
 Assign::Assign(Variable* left, Token* op, AST* right) {
     this->token = this->op = op;
@@ -50,6 +48,11 @@ VariableDeclaration::VariableDeclaration(std::vector<Variable*> variables) {
 
 Negation::Negation(Token* op, AST* statement) {
     this->token = this->op = op;
+    this->statement = statement;
+}
+
+IfCondition::IfCondition(AST* condition, Compound* statement) {
+    this->condition = condition;
     this->statement = statement;
 }
 

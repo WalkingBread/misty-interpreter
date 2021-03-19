@@ -30,8 +30,8 @@ enum class TokenType {
     OR = 24,
     NONE = 25,
     IF = 26,
-    INT_CAST = 27,
-    STR_CAST = 28,
+    ELSE = 27,
+    CAST = 28,
     PRINT = 29
 };
 

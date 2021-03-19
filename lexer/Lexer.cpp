@@ -21,10 +21,16 @@ void Lexer::create_keywords() {
     keywords["and"] = new Token(TokenType::AND, "and");
     keywords["or"] = new Token(TokenType::OR, "or");
     keywords["None"] = new Token(TokenType::NONE, "None");
+    keywords["if"] = new Token(TokenType::IF, "if");
+    keywords["else"] = new Token(TokenType::ELSE, "else");
+    keywords["print"] = new Token(TokenType::PRINT, "print");
+    keywords["int"] = new Token(TokenType::CAST, "int");
+    keywords["str"] = new Token(TokenType::CAST, "str");
+    keywords["float"] = new Token(TokenType::CAST, "float");
 }
 
-void Lexer::error() {
-    std::cout << "Invalid syntax" << std::endl;
+void Lexer::error(std::string message) {
+    std::cout << "Lexer: " << message << std::endl;
     exit(0);
 }
 
@@ -196,7 +202,18 @@ Token* Lexer::get_next_token() {
             return new Token(TokenType::R_PAREN, ")");
         }
 
-        error();
+        if(current_char == '{') {
+            advance();
+            return new Token(TokenType::L_CURLY, "{");
+        }
+
+        if(current_char == '}') {
+            advance();
+            return new Token(TokenType::R_CURLY, "}");
+        }
+
+        std::cout << current_char << std::endl;
+        error("Unidentified token.");
     }
 
     return new Token(TokenType::END_OF_FILE, "");

@@ -1,8 +1,11 @@
-have a, b, c, x, z, g;
+have a, b, c, x, z, g, d;
 
 a = 20;
 b = 20;
 c = 40;
+d = 1.52324;
+
 x = a == b and (c != 40 or b != 20);
-z = None;
-g = 10 - 2;
+if(x isnt False and b == 20) {
+    a = 40;
+}
