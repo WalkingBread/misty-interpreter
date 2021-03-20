@@ -7,7 +7,7 @@
 
 class Lexer {
     public:
-        std::map<std::string, Token*> keywords;
+        std::map<std::string, TokenType> keywords;
         
         Lexer(std::string code);
 

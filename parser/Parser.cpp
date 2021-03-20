@@ -14,7 +14,6 @@ void Parser::error() {
 Compound* Parser::compound_statement() {
     eat(TokenType::L_CURLY);
     std::vector<AST*> nodes = statement_list();
-    eat(TokenType::R_CURLY);
 
     Compound* root = new Compound();
     root->children = nodes;
@@ -27,10 +26,10 @@ std::vector<AST*> Parser::statement_list() {
 
     std::vector<AST*> nodes = {node};
 
-    while(current_token->type_of(TokenType::SEMICOLON)) {
-        eat(TokenType::SEMICOLON);
+    while(current_token->type_of(TokenType::SEMICOLON) || current_token->type_of(TokenType::R_CURLY)) {
+        eat(current_token->type);
         nodes.push_back(statement());
-    }
+    } 
 
     return nodes;
 }
@@ -93,6 +92,15 @@ IfCondition* Parser::else_statement() {
     }
 }
 
+Print* Parser::print_statement() {
+    eat(TokenType::PRINT);
+    eat(TokenType::L_PAREN);
+    AST* printable = expr();
+    eat(TokenType::R_PAREN);
+
+    return new Print(printable);
+}
+
 AST* Parser::statement() {
     AST* node;
 
@@ -115,6 +123,10 @@ AST* Parser::statement() {
             node = cond;
             break;
         }
+
+        case TokenType::PRINT:
+            node = print_statement();
+            break;
 
         default:
             node = empty();

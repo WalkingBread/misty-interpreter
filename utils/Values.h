@@ -7,7 +7,6 @@ namespace Values {
     const static std::string
         TRUE = "True",
         FALSE = "False";
-
 }
 
 #endif

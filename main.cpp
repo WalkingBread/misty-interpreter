@@ -13,7 +13,7 @@ int main(int argc, char** argv) {
 
     std::string line;
     while(std::getline(input_file, line)) {
-        content += line;
+        content += line; 
     }
 
     Interpreter interpreter(content);

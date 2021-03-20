@@ -14,7 +14,6 @@ Interpreter::Interpreter(std::string code) {
 }
 
 MemoryValue* Interpreter::visit(AST* node) {
-
     if(BinaryOperator* ast = dynamic_cast<BinaryOperator*>(node)) {
         return visit_binary_op(ast);
 
@@ -47,8 +46,12 @@ MemoryValue* Interpreter::visit(AST* node) {
         
     } else if(VariableDeclaration* ast = dynamic_cast<VariableDeclaration*>(node)) {
         return visit_var_declaration(ast);
+
     } else if(IfCondition* ast = dynamic_cast<IfCondition*>(node)) {
         return visit_if_condition(ast);
+
+    } else if(Print* ast = dynamic_cast<Print*>(node)) {
+        return visit_print(ast);
     } 
 }
 
@@ -223,6 +226,12 @@ MemoryValue* Interpreter::visit_if_condition(IfCondition* cond) {
             }
         }
     }
+    return NULL;
+}
+
+MemoryValue* Interpreter::visit_print(Print* print) {
+    MemoryValue* printable = visit(print->printable);
+    std::cout << printable->value << std::endl;
     return NULL;
 }
 

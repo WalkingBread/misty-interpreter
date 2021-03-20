@@ -121,4 +121,12 @@ class IfCondition : public AST {
         ~IfCondition() override {};
 };
 
+class Print : public AST {
+    public:
+        AST* printable;
+
+        Print(AST* printable);
+        ~Print() override {};
+};
+
 #endif

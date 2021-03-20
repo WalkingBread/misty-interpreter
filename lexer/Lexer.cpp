@@ -12,21 +12,22 @@ Lexer::Lexer(std::string code) {
 }
 
 void Lexer::create_keywords() {
-    keywords["have"] = new Token(TokenType::VARIABLE_DECL, "have");
-    keywords["True"] = new Token(TokenType::BOOLEAN, "True"); 
-    keywords["False"] = new Token(TokenType::BOOLEAN, "False");
-    keywords["not"] = new Token(TokenType::NOT, "not");
-    keywords["is"] = new Token(TokenType::EQUALS, "is");
-    keywords["isnt"] = new Token(TokenType::NOT_EQUALS, "isnt");
-    keywords["and"] = new Token(TokenType::AND, "and");
-    keywords["or"] = new Token(TokenType::OR, "or");
-    keywords["None"] = new Token(TokenType::NONE, "None");
-    keywords["if"] = new Token(TokenType::IF, "if");
-    keywords["else"] = new Token(TokenType::ELSE, "else");
-    keywords["print"] = new Token(TokenType::PRINT, "print");
-    keywords["int"] = new Token(TokenType::CAST, "int");
-    keywords["str"] = new Token(TokenType::CAST, "str");
-    keywords["float"] = new Token(TokenType::CAST, "float");
+    keywords["have"] = TokenType::VARIABLE_DECL;
+    keywords["True"] = TokenType::BOOLEAN; 
+    keywords["False"] = TokenType::BOOLEAN;
+    keywords["not"] = TokenType::NOT;
+    keywords["is"] = TokenType::EQUALS;
+    keywords["isnt"] = TokenType::NOT_EQUALS;
+    keywords["and"] = TokenType::AND;
+    keywords["or"] = TokenType::OR;
+    keywords["None"] = TokenType::NONE;
+    keywords["if"] = TokenType::IF;
+    keywords["else"] = TokenType::ELSE;
+    keywords["print"] = TokenType::PRINT;
+    keywords["int"] = TokenType::CAST;
+    keywords["str"] = TokenType::CAST;
+    keywords["float"] = TokenType::CAST;
+    keywords["func"] = TokenType::FUNCTION;
 }
 
 void Lexer::error(std::string message) {
@@ -95,7 +96,9 @@ Token* Lexer::handle_identifiers() {
     }
 
     if(keywords.find(result) != keywords.end()) {
-        return keywords.find(result)->second;
+        std::map<std::__cxx11::string, TokenType>::iterator it = keywords.find(result);
+
+        return new Token(it->second, it->first);
     }
     return new Token(TokenType::IDENTIFIER, result);
 }

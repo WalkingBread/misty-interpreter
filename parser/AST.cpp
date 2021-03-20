@@ -56,3 +56,7 @@ IfCondition::IfCondition(AST* condition, Compound* statement) {
     this->statement = statement;
 }
 
+Print::Print(AST* printable) {
+    this->printable = printable;
+}
+

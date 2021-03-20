@@ -36,6 +36,9 @@ void SymbolTableBuilder::visit(AST* node) {
 
     } else if(IfCondition* ast = dynamic_cast<IfCondition*>(node)) {
         visit_if_condition(ast);
+
+    } else if(Print* ast = dynamic_cast<Print*>(node)) {
+        return visit_print(ast);
     } 
 }
 
@@ -72,7 +75,6 @@ void SymbolTableBuilder::visit_assign(Assign* assign) {
     std::string var_name = var->value;
 
     Symbol* var_symbol =  table->lookup(var_name);
-    if(var->token)
 
     if(var_symbol == NULL) {
         name_error(var_name);
@@ -104,6 +106,11 @@ void SymbolTableBuilder::visit_negation(Negation* neg) {
 void SymbolTableBuilder::visit_var_declaration(VariableDeclaration* decl) {
     for(Variable* var : decl->variables) {
         std::string name = var->value;
+
+        if(table->lookup(name) != NULL) {
+            
+        }
+
         Symbol* symbol = new Symbol(name);
 
         table->define(symbol);
@@ -113,4 +120,8 @@ void SymbolTableBuilder::visit_var_declaration(VariableDeclaration* decl) {
 void SymbolTableBuilder::visit_if_condition(IfCondition* cond) {
     visit(cond->condition);
     visit(cond->statement);
+}
+
+void SymbolTableBuilder::visit_print(Print* print) {
+    visit(print->printable);
 }

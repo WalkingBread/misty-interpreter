@@ -8,7 +8,7 @@
 #include "../parser/Parser.h"
 #include "Memory.h"
 #include "SymbolTableBuilder.h"
-#include "../Values.h"
+#include "../utils/Values.h"
 
 class Interpreter {
     public:
@@ -36,6 +36,7 @@ class Interpreter {
         MemoryValue* visit_negation(Negation* neg);
         MemoryValue* visit_var_declaration(VariableDeclaration* decl);
         MemoryValue* visit_if_condition(IfCondition* cond);
+        MemoryValue* visit_print(Print* print);
 
         void type_mismatch_error();
 };
