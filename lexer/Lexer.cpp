@@ -89,12 +89,17 @@ Token* Lexer::number() {
 
 Token* Lexer::string() {
     std::string result = "";
+    advance();
 
-    while(current_char != NULL && current_char != '\'') {
+    while(current_char != '\'') {
         if(current_char == '\n') {
-            // error
+            std::string message = "Reached end of line while parsing string.";
+            SyntaxError(line, column, message).cast();
         }
+        result += current_char;
+        advance();
     }
+    advance();
 
     return create_token(TokenType::STRING, result);
 }
@@ -134,6 +139,10 @@ Token* Lexer::get_next_token() {
 
         if(isalpha(current_char)) {
             return handle_identifiers();
+        }
+
+        if(current_char == '\'') {
+            return string();
         }
 
         if(current_char == ',') {

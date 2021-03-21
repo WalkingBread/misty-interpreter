@@ -2,7 +2,7 @@
 #include "Interpreter.h"
 
 void Interpreter::type_mismatch_error(Token* token) {
-    std::string message = "Type mismatch error.";
+    std::string message = "Type mismatch.";
     SyntaxError(token->line, token->column, message).cast();
 }
 
@@ -59,39 +59,81 @@ MemoryValue* Interpreter::visit_binary_op(BinaryOperator* op) {
     MemoryValue* left = visit(op->left);
     MemoryValue* right = visit(op->right);
 
-    if(left->type != Type::FLOAT || right->type != Type::FLOAT) {
-        type_mismatch_error(op->right->token);
-    }
-
-    double x = std::stod(left->value);
-    double y = std::stod(right->value);
-
     switch(op->op->type) {
         case TokenType::PLUS:
         {
-            return new MemoryValue(std::to_string(x + y), Type::FLOAT);
+            if(left->type == Type::STRING) {
+                if(right->type != Type::STRING) {
+                    type_mismatch_error(op->right->token);
+                }
+
+                std::string a = left->value;
+                std::string b = right->value;
+
+                return new MemoryValue(a + b, Type::STRING);
+
+
+            } else if(left->type == Type::FLOAT) {
+                if(right->type != Type::FLOAT) {
+                    type_mismatch_error(op->right->token);
+                }
+
+                double x = std::stod(left->value);
+                double y = std::stod(right->value);
+
+                return new MemoryValue(std::to_string(x + y), Type::FLOAT);
+            }
+            type_mismatch_error(op->left->token);
         }
         case TokenType::MINUS:
-        {
+        {   
+            if(left->type != Type::FLOAT || right->type != Type::FLOAT) {
+                type_mismatch_error(op->right->token);
+            }
+            double x = std::stod(left->value);
+            double y = std::stod(right->value);
+
             return new MemoryValue(std::to_string(x - y), Type::FLOAT);
         }
         case TokenType::DIV:
         {
+            if(left->type != Type::FLOAT || right->type != Type::FLOAT) {
+                type_mismatch_error(op->right->token);
+            }
+            double x = std::stod(left->value);
+            double y = std::stod(right->value);
+
             return new MemoryValue(std::to_string(x / y), Type::FLOAT);
         }
         case TokenType::MULT:
         {
+            if(left->type != Type::FLOAT || right->type != Type::FLOAT) {
+                type_mismatch_error(op->right->token);
+            }
+            double x = std::stod(left->value);
+            double y = std::stod(right->value);
+
             return new MemoryValue(std::to_string(x * y), Type::FLOAT);
         }
         case TokenType::INT_DIV:
         {
-            int a = (int) x;
-            int b = (int) y;
+            if(left->type != Type::FLOAT || right->type != Type::FLOAT) {
+                type_mismatch_error(op->right->token);
+            }
 
-            return new MemoryValue(std::to_string(a / b), Type::FLOAT);
+            int x = std::stoi(left->value);
+            int y = std::stoi(right->value);
+
+            return new MemoryValue(std::to_string(x / y), Type::FLOAT);
         }
         case TokenType::MODULO:
         {
+            if(left->type != Type::FLOAT || right->type != Type::FLOAT) {
+                type_mismatch_error(op->right->token);
+            }
+
+            double x = std::stod(left->value);
+            double y = std::stod(right->value);
             return new MemoryValue(std::to_string(fmod(x, y)), Type::FLOAT);
         }
     }

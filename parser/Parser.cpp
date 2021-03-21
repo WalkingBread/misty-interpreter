@@ -7,7 +7,7 @@ Parser::Parser(Lexer* lexer) {
 }
 
 void Parser::error(Token* token) {
-    std::string message = "Unexpected token.";
+    std::string message = "Unexpected token: " + token->value;
     int line = token->line;
     int column = token->column;
     SyntaxError(line, column, message).cast();
@@ -222,6 +222,12 @@ AST* Parser::factor() {
         {
             eat(TokenType::NOT);
             return new Negation(token, factor());
+        }
+
+        case TokenType::STRING:
+        {
+            eat(TokenType::STRING);
+            return new Value(token);
         }
 
         case TokenType::BOOLEAN:
