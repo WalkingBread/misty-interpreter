@@ -8,6 +8,9 @@ Lexer::Lexer(std::string code) {
     pos = 0;
     current_char = code[pos];
 
+    line = 1;
+    column = 1;
+
     create_keywords();
 }
 
@@ -30,17 +33,22 @@ void Lexer::create_keywords() {
     keywords["func"] = TokenType::FUNCTION;
 }
 
-void Lexer::error(std::string message) {
-    std::cout << "Lexer: " << message << std::endl;
-    exit(0);
+Token* Lexer::create_token(TokenType type, std::string value) {
+    return new Token(type, value, line, column);
 }
 
 void Lexer::advance() {
+    if(current_char == '\n') {
+        line++;
+        column = 0;
+    }
+
     pos++;
     if(pos > code.length() - 1) {
         current_char = NULL;
     } else {
         current_char = code[pos];
+        column++;
     }
 }
 
@@ -53,7 +61,7 @@ char Lexer::peek() {
 }
 
 void Lexer::skip_whitespace() {
-    while(current_char != NULL && current_char == ' ') {
+    while(current_char != NULL && isspace(current_char)) {
         advance();
     }
 }
@@ -76,15 +84,19 @@ Token* Lexer::number() {
         }
     }
     
-    return new Token(TokenType::FLOAT, result);
+    return create_token(TokenType::FLOAT, result);
 }
 
 Token* Lexer::string() {
     std::string result = "";
 
     while(current_char != NULL && current_char != '\'') {
-        
+        if(current_char == '\n') {
+            // error
+        }
     }
+
+    return create_token(TokenType::STRING, result);
 }
 
 Token* Lexer::handle_identifiers() {
@@ -98,9 +110,9 @@ Token* Lexer::handle_identifiers() {
     if(keywords.find(result) != keywords.end()) {
         std::map<std::__cxx11::string, TokenType>::iterator it = keywords.find(result);
 
-        return new Token(it->second, it->first);
+        return create_token(it->second, it->first);
     }
-    return new Token(TokenType::IDENTIFIER, result);
+    return create_token(TokenType::IDENTIFIER, result);
 }
 
 
@@ -108,8 +120,12 @@ Token* Lexer::get_next_token() {
 
     while(current_char != NULL) {
 
-        if(current_char == ' ') {
+        if(isspace(current_char)) {
             skip_whitespace();
+
+            if(current_char == NULL) {
+                return create_token(TokenType::END_OF_FILE, "");
+            }
         }
 
         if(isdigit(current_char)) {
@@ -122,102 +138,102 @@ Token* Lexer::get_next_token() {
 
         if(current_char == ',') {
             advance();
-            return new Token(TokenType::COMMA, ",");
+            return create_token(TokenType::COMMA, ",");
         }
 
         if(current_char == '&' && peek() == '&') {
             advance();
             advance();
-            return new Token(TokenType::AND, "&&");
+            return create_token(TokenType::AND, "&&");
         }
 
         if(current_char == '|' && peek() == '|') {
             advance();
             advance();
-            return new Token(TokenType::OR, "||");
+            return create_token(TokenType::OR, "||");
         }
 
         if(current_char == '!' && peek() == '=') {
             advance();
             advance();
-            return new Token(TokenType::NOT_EQUALS, "==");
+            return create_token(TokenType::NOT_EQUALS, "==");
         }
 
         if(current_char == '!') {
             advance();
-            return new Token(TokenType::NOT, "!");
+            return create_token(TokenType::NOT, "!");
         }
 
         if(current_char == '=' && peek() == '=') {
             advance();
             advance();
-            return new Token(TokenType::EQUALS, "==");
+            return create_token(TokenType::EQUALS, "==");
         }
 
         if(current_char == '=') {
             advance();
-            return new Token(TokenType::ASSIGN, "=");
+            return create_token(TokenType::ASSIGN, "=");
         }
 
         if(current_char == ';') {
             advance();
-            return new Token(TokenType::SEMICOLON, ";");
+            return create_token(TokenType::SEMICOLON, ";");
         }
 
         if(current_char == '+') {
             advance();
-            return new Token(TokenType::PLUS, "+");
+            return create_token(TokenType::PLUS, "+");
         }
 
         if(current_char == '-') {
             advance();
-            return new Token(TokenType::MINUS, "-");
+            return create_token(TokenType::MINUS, "-");
         }
 
         if(current_char == '*') {
             advance();
-            return new Token(TokenType::MULT, "*");
+            return create_token(TokenType::MULT, "*");
         }
 
         if(current_char == '/' && peek() == '/') {
             advance();
             advance();
-            return new Token(TokenType::INT_DIV, "//");
+            return create_token(TokenType::INT_DIV, "//");
         }
 
         if(current_char == '/') {
             advance();
-            return new Token(TokenType::DIV, "/");
+            return create_token(TokenType::DIV, "/");
         }
 
         if(current_char == '%') {
             advance();
-            return new Token(TokenType::MODULO, "%");
+            return create_token(TokenType::MODULO, "%");
         }
 
         if(current_char == '(') {
             advance();
-            return new Token(TokenType::L_PAREN, "(");
+            return create_token(TokenType::L_PAREN, "(");
         }
 
         if(current_char == ')') {
             advance();
-            return new Token(TokenType::R_PAREN, ")");
+            return create_token(TokenType::R_PAREN, ")");
         }
 
         if(current_char == '{') {
             advance();
-            return new Token(TokenType::L_CURLY, "{");
+            return create_token(TokenType::L_CURLY, "{");
         }
 
         if(current_char == '}') {
             advance();
-            return new Token(TokenType::R_CURLY, "}");
+            return create_token(TokenType::R_CURLY, "}");
         }
 
-        std::cout << current_char << std::endl;
-        error("Unidentified token.");
+        std::string message = "Unidentified token: " + current_char;
+        SyntaxError(line, column, message).cast();
     }
 
-    return new Token(TokenType::END_OF_FILE, "");
+    return create_token(TokenType::END_OF_FILE, "");
 }

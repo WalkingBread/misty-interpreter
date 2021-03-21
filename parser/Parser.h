@@ -5,6 +5,7 @@
 #include <vector>
 #include "../lexer/Lexer.h"
 #include "../utils/Values.h"
+#include "../utils/Error.h"
 #include "AST.h"
 
 class Parser {
@@ -35,7 +36,7 @@ class Parser {
         Compound* compound_statement();
         Print* print_statement();
 
-        void error();
+        void error(Token* token);
 };
 
 #endif

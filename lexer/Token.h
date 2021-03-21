@@ -33,14 +33,18 @@ enum class TokenType {
     ELSE = 27,
     CAST = 28,
     PRINT = 29,
-    FUNCTION = 30
+    FUNCTION = 30,
 };
 
 class Token {
     public:
         TokenType type;
         std::string value;
+
+        int line;
+        int column;
         
+        Token(TokenType type, std::string value, int line, int column);
         Token(TokenType type, std::string value);
 
         bool type_of(TokenType type);

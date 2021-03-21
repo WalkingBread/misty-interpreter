@@ -1,0 +1,4 @@
+have x = 10;
+have y = z;
+
+print(x); 

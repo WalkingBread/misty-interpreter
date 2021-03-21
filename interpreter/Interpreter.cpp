@@ -1,9 +1,9 @@
 #include <iostream>
 #include "Interpreter.h"
 
-void Interpreter::type_mismatch_error() {
-    std::cout << "Type mismatch error" << std::endl;
-    exit(0);
+void Interpreter::type_mismatch_error(Token* token) {
+    std::string message = "Type mismatch error.";
+    SyntaxError(token->line, token->column, message).cast();
 }
 
 Interpreter::Interpreter(std::string code) {
@@ -60,7 +60,7 @@ MemoryValue* Interpreter::visit_binary_op(BinaryOperator* op) {
     MemoryValue* right = visit(op->right);
 
     if(left->type != Type::FLOAT || right->type != Type::FLOAT) {
-        type_mismatch_error();
+        type_mismatch_error(op->right->token);
     }
 
     double x = std::stod(left->value);
@@ -104,7 +104,7 @@ MemoryValue* Interpreter::visit_unary_op(UnaryOperator* op) {
             return new MemoryValue(std::to_string(-value), Type::FLOAT);
 
         } else {
-            type_mismatch_error();
+            type_mismatch_error(op->expr->token);
         }
     } 
     return visit(op->expr);
@@ -168,8 +168,10 @@ MemoryValue* Interpreter::visit_variable(Variable* var) {
     if(val != NULL) {
         return val;
     } else {
-        std::cout << "Name error: " << var->value << std::endl;
-        exit(0);
+        std::string message = "Variable has not been initialized.";
+        int line = var->token->line;
+        int column = var->token->column;
+        NameError(line, column, message).cast();
     }
 }
 
@@ -198,7 +200,7 @@ MemoryValue* Interpreter::visit_negation(Negation* neg) {
     MemoryValue* value = visit(neg->statement);
 
     if(value->type != Type::BOOLEAN) {
-        type_mismatch_error();
+        type_mismatch_error(neg->statement->token);
     }
 
     if(value->value == Values::TRUE) {

@@ -10,7 +10,7 @@ if(x is False and b == 20) {
 }
 print(b);
 
-have f;
-f = 10;
-
+have f = 10;
 print(f);
+
+have z = None;

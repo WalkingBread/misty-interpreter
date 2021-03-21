@@ -6,9 +6,11 @@ Parser::Parser(Lexer* lexer) {
     current_token = lexer->get_next_token();
 }
 
-void Parser::error() {
-    std::cout << "Parser: Invalid syntax." << std::endl;
-    exit(0);
+void Parser::error(Token* token) {
+    std::string message = "Unexpected token.";
+    int line = token->line;
+    int column = token->column;
+    SyntaxError(line, column, message).cast();
 }
 
 Compound* Parser::compound_statement() {
@@ -69,7 +71,7 @@ VariableDeclaration* Parser::variable_declaration() {
         while(current_token->type_of(TokenType::COMMA)) {
             eat(TokenType::COMMA);
             if(i > variables.size()) {
-                error();
+                error(current_token);
             }
 
             Variable* left = variables.at(i);
@@ -253,7 +255,7 @@ void Parser::eat(TokenType type) {
         int current_type = static_cast<int>(current_token->type);
         int expected_type = static_cast<int>(type);
 
-        lexer->error("Unexpected token: Found: " + std::to_string(current_type) + " Instead of: " + std::to_string(expected_type));
+        error(current_token);
     }
 }
 
@@ -282,7 +284,7 @@ AST* Parser::parse() {
 
     if(!current_token->type_of(TokenType::END_OF_FILE)) {
         std::cout << static_cast<int>(current_token->type) << std::endl;
-        error();
+        error(current_token);
     }
 
     return program;

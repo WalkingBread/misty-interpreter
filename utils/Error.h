@@ -8,31 +8,34 @@
 class Error {
     public:
         std::string error_type;
-        Token* token;
         std::string file_path;
         std::string error_message;
 
-        Error(std::string error_type, std::string file_path, Token* token, std::string message) {
+        int line, column;
+
+        Error(std::string error_type, int line, int column, std::string message) {
             this->error_type = error_type;
-            this->file_path = file_path;
-            this->token = token;
+            this->line = line;
+            this->column = column;
             this->error_message = message;
         }
 
         void cast() {
-            std::cout << error_message << std::endl;
+            std::cout << error_type << "line " << line << ", column " << column << ": " << error_message << std::endl;
             exit(0);
         }
 };
 
 class NameError : public Error {
     public:
-
+        NameError(int line, int column, std::string message) 
+        : Error("NameError: ", line, column, message) {}
 };
 
 class SyntaxError : public Error {
     public:
-
+        SyntaxError(int line, int column, std::string message) 
+        : Error("SyntaxError: ", line, column, message) {}
 };
 
 #endif

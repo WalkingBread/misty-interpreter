@@ -9,6 +9,7 @@
 #include "Memory.h"
 #include "SymbolTableBuilder.h"
 #include "../utils/Values.h"
+#include "../utils/Error.h"
 
 class Interpreter {
     public:
@@ -38,7 +39,7 @@ class Interpreter {
         MemoryValue* visit_if_condition(IfCondition* cond);
         MemoryValue* visit_print(Print* print);
 
-        void type_mismatch_error();
+        void type_mismatch_error(Token* token);
 };
 
 #endif

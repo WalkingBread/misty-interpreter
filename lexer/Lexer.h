@@ -4,6 +4,7 @@
 #include <string>
 #include <map>
 #include "Token.h"
+#include "../utils/Error.h"
 
 class Lexer {
     public:
@@ -13,6 +14,9 @@ class Lexer {
 
         Token* get_next_token();
         void error(std::string message);
+
+        int line;
+        int column;
 
     private:
         int pos;
@@ -27,6 +31,8 @@ class Lexer {
         Token* string();
 
         Token* handle_identifiers();
+
+        Token* create_token(TokenType type, std::string value);
 
         void create_keywords();
 };
