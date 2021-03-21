@@ -57,14 +57,6 @@ class Variable : public AST {
         ~Variable() override {};
 };
 
-class VariableDeclaration : public AST {
-    public:     
-        std::vector<Variable*> variables;
-
-        VariableDeclaration(std::vector<Variable*> variables);
-        ~VariableDeclaration() override {};
-};
-
 class Assign : public AST {
     public:
         Variable* left;
@@ -75,6 +67,14 @@ class Assign : public AST {
         ~Assign() override {};
 };
 
+class VariableDeclaration : public AST {
+    public:     
+        std::vector<Variable*> variables;
+        std::vector<Assign*> assignments;
+
+        VariableDeclaration(std::vector<Variable*> variables);
+        ~VariableDeclaration() override {};
+};
 
 class NoOperator : public AST {};
 

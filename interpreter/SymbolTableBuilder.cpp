@@ -108,7 +108,7 @@ void SymbolTableBuilder::visit_var_declaration(VariableDeclaration* decl) {
         std::string name = var->value;
 
         if(table->lookup(name) != NULL) {
-            
+            // error
         }
 
         Symbol* symbol = new Symbol(name);

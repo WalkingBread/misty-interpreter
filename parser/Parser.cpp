@@ -54,7 +54,35 @@ VariableDeclaration* Parser::variable_declaration() {
         variables.push_back(var);
     }
 
-    return new VariableDeclaration(variables);
+    VariableDeclaration* var_decl = new VariableDeclaration(variables);
+
+    if(current_token->type_of(TokenType::ASSIGN)) {
+        eat(TokenType::ASSIGN);
+
+        Variable* left = variables.at(0);
+        AST* right = expr();
+        Assign* assignment = new Assign(left, new Token(TokenType::ASSIGN, "="), right);
+
+        var_decl->assignments.push_back(assignment);
+
+        int i = 1;
+        while(current_token->type_of(TokenType::COMMA)) {
+            eat(TokenType::COMMA);
+            if(i > variables.size()) {
+                error();
+            }
+
+            Variable* left = variables.at(i);
+            AST* right = expr();
+            Assign* assignment = new Assign(left, new Token(TokenType::ASSIGN, "="), right);
+
+            var_decl->assignments.push_back(assignment);
+            i++;
+        }
+        
+    }
+
+    return var_decl;
 }
 
 NoOperator* Parser::empty() {

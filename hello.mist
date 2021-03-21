@@ -1,9 +1,6 @@
-have a, b, c, x, z, g, d;
+have a, b, c, d = 20, 20, 40, 1.52324;
 
-a = 20;
-b = 20;
-c = 40;
-d = 1.52324;
+have x;
 
 x = a == b and (c != 40 or b != 20);
 

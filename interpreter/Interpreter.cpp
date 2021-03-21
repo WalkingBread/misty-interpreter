@@ -209,6 +209,10 @@ MemoryValue* Interpreter::visit_negation(Negation* neg) {
 }
 
 MemoryValue* Interpreter::visit_var_declaration(VariableDeclaration* decl) {
+    for(Assign* assignment : decl->assignments) {
+        visit(assignment);
+    }
+
     return NULL;
 }
 
