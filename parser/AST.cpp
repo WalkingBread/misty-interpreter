@@ -60,3 +60,7 @@ Print::Print(AST* printable) {
     this->printable = printable;
 }
 
+ArrayInit::ArrayInit(std::vector<AST*> elements) {
+    this->elements = elements;
+}
+

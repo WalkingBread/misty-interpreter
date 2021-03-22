@@ -38,13 +38,19 @@ void SymbolTableBuilder::visit(AST* node) {
         visit_if_condition(ast);
 
     } else if(Print* ast = dynamic_cast<Print*>(node)) {
-        return visit_print(ast);
-    } 
+        visit_print(ast);
+
+    } else if(ArrayInit* ast = dynamic_cast<ArrayInit*>(node)) {
+        visit_array_init(ast);
+    }
 }
 
-void SymbolTableBuilder::name_error(std::string name) {
-    std::cout << "NameError: Symbol " << name << " has not been declared." << std::endl;  
-    exit(0);
+void SymbolTableBuilder::name_error(Token* token) {
+    std::string message = "Variable " + token->value + " has not been declared.";
+    int line = token->line;
+    int column = token->column;
+
+    NameError(line, column, message).cast();
 }
 
 void SymbolTableBuilder::visit_binary_op(BinaryOperator* op) {
@@ -77,7 +83,7 @@ void SymbolTableBuilder::visit_assign(Assign* assign) {
     Symbol* var_symbol =  table->lookup(var_name);
 
     if(var_symbol == NULL) {
-        name_error(var_name);
+        name_error(var->token);
     }
 
     visit(assign->right);
@@ -88,7 +94,7 @@ void SymbolTableBuilder::visit_variable(Variable* var) {
     Symbol* var_symbol = table->lookup(var_name);
 
     if(var_symbol == NULL) {
-        name_error(var_name);
+        name_error(var->token);
     }
 }
 
@@ -108,7 +114,11 @@ void SymbolTableBuilder::visit_var_declaration(VariableDeclaration* decl) {
         std::string name = var->value;
 
         if(table->lookup(name) != NULL) {
-            // error
+            std::string message = "Variable "  + name + " has already been declared.";
+            int line = var->token->line;
+            int column = var->token->column;
+
+            NameError(line, column, message).cast();
         }
 
         Symbol* symbol = new Symbol(name);
@@ -124,4 +134,10 @@ void SymbolTableBuilder::visit_if_condition(IfCondition* cond) {
 
 void SymbolTableBuilder::visit_print(Print* print) {
     visit(print->printable);
+}
+
+void SymbolTableBuilder::visit_array_init(ArrayInit* array_init) {
+    for(AST* node : array_init->elements) {
+        visit(node);
+    }
 }

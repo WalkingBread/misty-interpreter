@@ -3,6 +3,7 @@
 
 #include "Symbol.h"
 #include "../parser/AST.h"
+#include "../utils/Error.h"
 #include <iostream>
 
 class SymbolTableBuilder {
@@ -30,8 +31,9 @@ class SymbolTableBuilder {
         void visit_var_declaration(VariableDeclaration* decl);
         void visit_if_condition(IfCondition* cond);
         void visit_print(Print* print);
+        void visit_array_init(ArrayInit* array_init);
 
-        void name_error(std::string name);
+        void name_error(Token* token);
 };
 
 #endif

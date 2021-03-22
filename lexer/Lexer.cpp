@@ -240,6 +240,16 @@ Token* Lexer::get_next_token() {
             return create_token(TokenType::R_CURLY, "}");
         }
 
+        if(current_char == '[') {
+            advance();
+            return create_token(TokenType::L_SQUARED, "[");
+        } 
+
+        if(current_char == ']') {
+            advance();
+            return create_token(TokenType::R_SQUARED, "]");
+        }
+
         std::string message = "Unidentified token: " + current_char;
         SyntaxError(line, column, message).cast();
     }

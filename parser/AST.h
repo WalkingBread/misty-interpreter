@@ -129,4 +129,12 @@ class Print : public AST {
         ~Print() override {};
 };
 
+class ArrayInit : public AST {
+    public:
+        std::vector<AST*> elements;
+
+        ArrayInit(std::vector<AST*> elements);
+        ~ArrayInit() override {};
+};
+
 #endif

@@ -34,6 +34,8 @@ enum class TokenType {
     CAST = 28,
     PRINT = 29,
     FUNCTION = 30,
+    L_SQUARED = 31,
+    R_SQUARED = 32
 };
 
 class Token {

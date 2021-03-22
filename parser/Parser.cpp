@@ -195,6 +195,24 @@ AST* Parser::term() {
     return node;
 }
 
+ArrayInit* Parser::array_init() {
+    eat(TokenType::L_SQUARED);
+
+    std::vector<AST*> elements = {};
+
+    if(!current_token->type_of(TokenType::R_SQUARED)) {
+        elements.push_back(expr());
+
+        while(current_token->type_of(TokenType::COMMA)) {
+            eat(TokenType::COMMA);
+            elements.push_back(expr());
+        }
+    }
+
+    eat(TokenType::R_SQUARED);
+    return new ArrayInit(elements);
+}
+
 AST* Parser::factor() {
     Token* token = current_token;
 
@@ -246,6 +264,10 @@ AST* Parser::factor() {
             AST* node = expr();
             eat(TokenType::R_PAREN);
             return node;
+        }
+        case TokenType::L_SQUARED:
+        {
+            return array_init();
         }
         
         default:

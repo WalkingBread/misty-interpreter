@@ -52,12 +52,15 @@ MemoryValue* Interpreter::visit(AST* node) {
 
     } else if(Print* ast = dynamic_cast<Print*>(node)) {
         return visit_print(ast);
-    } 
+
+    } else if(ArrayInit* ast = dynamic_cast<ArrayInit*>(node)) {
+        return visit_array_init(ast);
+    }
 }
 
 MemoryValue* Interpreter::visit_binary_op(BinaryOperator* op) {
-    MemoryValue* left = visit(op->left);
-    MemoryValue* right = visit(op->right);
+    SingularMemoryValue* left = (SingularMemoryValue*) visit(op->left);
+    SingularMemoryValue* right = (SingularMemoryValue*) visit(op->right);
 
     switch(op->op->type) {
         case TokenType::PLUS:
@@ -70,7 +73,7 @@ MemoryValue* Interpreter::visit_binary_op(BinaryOperator* op) {
                 std::string a = left->value;
                 std::string b = right->value;
 
-                return new MemoryValue(a + b, Type::STRING);
+                return new SingularMemoryValue(a + b, Type::STRING);
 
 
             } else if(left->type == Type::FLOAT) {
@@ -81,7 +84,7 @@ MemoryValue* Interpreter::visit_binary_op(BinaryOperator* op) {
                 double x = std::stod(left->value);
                 double y = std::stod(right->value);
 
-                return new MemoryValue(std::to_string(x + y), Type::FLOAT);
+                return new SingularMemoryValue(std::to_string(x + y), Type::FLOAT);
             }
             type_mismatch_error(op->left->token);
         }
@@ -93,7 +96,7 @@ MemoryValue* Interpreter::visit_binary_op(BinaryOperator* op) {
             double x = std::stod(left->value);
             double y = std::stod(right->value);
 
-            return new MemoryValue(std::to_string(x - y), Type::FLOAT);
+            return new SingularMemoryValue(std::to_string(x - y), Type::FLOAT);
         }
         case TokenType::DIV:
         {
@@ -103,7 +106,7 @@ MemoryValue* Interpreter::visit_binary_op(BinaryOperator* op) {
             double x = std::stod(left->value);
             double y = std::stod(right->value);
 
-            return new MemoryValue(std::to_string(x / y), Type::FLOAT);
+            return new SingularMemoryValue(std::to_string(x / y), Type::FLOAT);
         }
         case TokenType::MULT:
         {
@@ -113,7 +116,7 @@ MemoryValue* Interpreter::visit_binary_op(BinaryOperator* op) {
             double x = std::stod(left->value);
             double y = std::stod(right->value);
 
-            return new MemoryValue(std::to_string(x * y), Type::FLOAT);
+            return new SingularMemoryValue(std::to_string(x * y), Type::FLOAT);
         }
         case TokenType::INT_DIV:
         {
@@ -124,7 +127,7 @@ MemoryValue* Interpreter::visit_binary_op(BinaryOperator* op) {
             int x = std::stoi(left->value);
             int y = std::stoi(right->value);
 
-            return new MemoryValue(std::to_string(x / y), Type::FLOAT);
+            return new SingularMemoryValue(std::to_string(x / y), Type::FLOAT);
         }
         case TokenType::MODULO:
         {
@@ -134,25 +137,28 @@ MemoryValue* Interpreter::visit_binary_op(BinaryOperator* op) {
 
             double x = std::stod(left->value);
             double y = std::stod(right->value);
-            return new MemoryValue(std::to_string(fmod(x, y)), Type::FLOAT);
+            return new SingularMemoryValue(std::to_string(fmod(x, y)), Type::FLOAT);
         }
     }
 }
 
-MemoryValue* Interpreter::visit_unary_op(UnaryOperator* op) {
+SingularMemoryValue* Interpreter::visit_unary_op(UnaryOperator* op) {
+    SingularMemoryValue* expr = (SingularMemoryValue*) visit(op->expr);
+
     if(op->op->type_of(TokenType::MINUS)) {
-        if(visit(op->expr)->type == Type::FLOAT) {
-            double value = std::stod(visit(op->expr)->value);
-            return new MemoryValue(std::to_string(-value), Type::FLOAT);
+        if(expr->type == Type::FLOAT) {
+
+            double value = std::stod(expr->value);
+            return new SingularMemoryValue(std::to_string(-value), Type::FLOAT);
 
         } else {
             type_mismatch_error(op->expr->token);
         }
     } 
-    return visit(op->expr);
+    return expr;
 }
 
-MemoryValue* Interpreter::visit_value(Value* val) {
+SingularMemoryValue* Interpreter::visit_value(Value* val) {
     Type type;
 
     if(val->token->type_of(TokenType::FLOAT)) {
@@ -168,26 +174,29 @@ MemoryValue* Interpreter::visit_value(Value* val) {
         type = Type::NONE;
     }
 
-    return new MemoryValue(val->value, type);
+    return new SingularMemoryValue(val->value, type);
 }
 
-MemoryValue* Interpreter::visit_compare(Compare* c) {
+SingularMemoryValue* Interpreter::visit_compare(Compare* c) {
     for(int i = 0; i < c->operators.size(); i++) {
         Token* op = c->operators.at(i);
         AST* left = c->comparables[i];
         AST* right = c->comparables[i + 1];
 
+        std::string left_value = ((SingularMemoryValue*) visit(left))->value;
+        std::string right_value = ((SingularMemoryValue*) visit(right))->value;
+
         if(op->type_of(TokenType::EQUALS)) {
-            if(visit(left)->value != visit(right)->value) {
-                return new MemoryValue(Values::FALSE, Type::BOOLEAN);
+            if(left_value != right_value) {
+                return new SingularMemoryValue(Values::FALSE, Type::BOOLEAN);
             }
         } else if(op->type_of(TokenType::NOT_EQUALS)) {
-            if(visit(left)->value == visit(right)->value) {
-                return new MemoryValue(Values::FALSE, Type::BOOLEAN);
+            if(left_value == right_value) {
+                return new SingularMemoryValue(Values::FALSE, Type::BOOLEAN);
             }
         }
     }
-    return new MemoryValue(Values::TRUE, Type::BOOLEAN);
+    return new SingularMemoryValue(Values::TRUE, Type::BOOLEAN);
 }
 
 MemoryValue* Interpreter::visit_compound(Compound* comp) {
@@ -221,34 +230,37 @@ MemoryValue* Interpreter::visit_no_operator(NoOperator* no_op) {
     return NULL;
 }
 
-MemoryValue* Interpreter::visit_double_condition(DoubleCondition* cond) {
+SingularMemoryValue* Interpreter::visit_double_condition(DoubleCondition* cond) {
+    std::string left_value = ((SingularMemoryValue*) visit(cond->left))->value;
+    std::string right_value = ((SingularMemoryValue*) visit(cond->right))->value;
+
     if(cond->token->type_of(TokenType::AND)) {
-        if(visit(cond->left)->value == Values::TRUE && visit(cond->right)->value == Values::TRUE) {
-            return new MemoryValue(Values::TRUE, Type::BOOLEAN);
+        if(left_value == Values::TRUE && right_value == Values::TRUE) {
+            return new SingularMemoryValue(Values::TRUE, Type::BOOLEAN);
         } else {
-            return new MemoryValue(Values::FALSE, Type::BOOLEAN);
+            return new SingularMemoryValue(Values::FALSE, Type::BOOLEAN);
         }
 
     } else if(cond->token->type_of(TokenType::OR)) {
-        if(visit(cond->left)->value == Values::TRUE || visit(cond->right)->value == Values::TRUE) {
-            return new MemoryValue(Values::TRUE, Type::BOOLEAN);
+        if(left_value == Values::TRUE || right_value == Values::TRUE) {
+            return new SingularMemoryValue(Values::TRUE, Type::BOOLEAN);
         } else {
-            return new MemoryValue(Values::FALSE, Type::BOOLEAN);
+            return new SingularMemoryValue(Values::FALSE, Type::BOOLEAN);
         }
     }
 }
 
-MemoryValue* Interpreter::visit_negation(Negation* neg) {
-    MemoryValue* value = visit(neg->statement);
+SingularMemoryValue* Interpreter::visit_negation(Negation* neg) {
+    SingularMemoryValue* value = (SingularMemoryValue*) visit(neg->statement);
 
     if(value->type != Type::BOOLEAN) {
         type_mismatch_error(neg->statement->token);
     }
 
     if(value->value == Values::TRUE) {
-        return new MemoryValue(Values::FALSE, Type::BOOLEAN);
+        return new SingularMemoryValue(Values::FALSE, Type::BOOLEAN);
     } else if(value->value == Values::FALSE) {
-        return new MemoryValue(Values::TRUE, Type::BOOLEAN);
+        return new SingularMemoryValue(Values::TRUE, Type::BOOLEAN);
     }
 }
 
@@ -264,11 +276,15 @@ MemoryValue* Interpreter::visit_if_condition(IfCondition* cond) {
     AST* condition = cond->condition;
     Compound* statement = cond->statement;
 
-    if(visit(condition)->value == Values::TRUE) {
+    std::string cond_value = ((SingularMemoryValue*) visit(condition))->value;
+
+    if(cond_value == Values::TRUE) {
         visit(statement);
     } else {
         for(IfCondition* else_ : cond->elses) {
-            if(visit(else_->condition)->value == Values::TRUE) {
+            std::string else_cond_value = ((SingularMemoryValue*) visit(else_->condition))->value;
+
+            if(else_cond_value == Values::TRUE) {
                 visit(else_->statement);
                 return NULL;
             }
@@ -278,9 +294,24 @@ MemoryValue* Interpreter::visit_if_condition(IfCondition* cond) {
 }
 
 MemoryValue* Interpreter::visit_print(Print* print) {
-    MemoryValue* printable = visit(print->printable);
-    std::cout << printable->value << std::endl;
+    if(SingularMemoryValue* printable = (SingularMemoryValue*) visit(print->printable)) {
+        std::cout << printable->value << std::endl;
+    } else {
+        // print array
+    }
+    
     return NULL;
+}
+
+Array* Interpreter::visit_array_init(ArrayInit* array_init) {
+    std::vector<MemoryValue*> elements;
+
+    for(AST* el : array_init->elements) {
+        MemoryValue* element = visit(el);
+        elements.push_back(element);
+    }
+
+    return new Array(elements);
 }
 
 void Interpreter::evaluate() {

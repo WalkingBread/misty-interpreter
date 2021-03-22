@@ -36,6 +36,8 @@ class Parser {
         Compound* compound_statement();
         Print* print_statement();
 
+        ArrayInit* array_init();
+
         void error(Token* token);
 };
 
