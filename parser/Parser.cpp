@@ -17,6 +17,8 @@ Compound* Parser::compound_statement() {
     eat(TokenType::L_CURLY);
     std::vector<AST*> nodes = statement_list();
 
+    eat(TokenType::R_CURLY);
+
     Compound* root = new Compound();
     root->children = nodes;
 
@@ -28,7 +30,7 @@ std::vector<AST*> Parser::statement_list() {
 
     std::vector<AST*> nodes = {node};
 
-    while(current_token->type_of(TokenType::SEMICOLON) || current_token->type_of(TokenType::R_CURLY)) {
+    while(current_token->type_of(TokenType::SEMICOLON)) {
         eat(current_token->type);
         nodes.push_back(statement());
     } 

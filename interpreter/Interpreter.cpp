@@ -10,7 +10,7 @@ Interpreter::Interpreter(std::string code) {
     lexer = new Lexer(code);
     parser = new Parser(lexer);
     global_memory = new Memory();
-    symbol_table_builder = new SymbolTableBuilder();
+    semantic_analyzer = new SemanticAnalyzer();
 }
 
 MemoryValue* Interpreter::visit(AST* node) {
@@ -352,7 +352,7 @@ MemoryValue* Interpreter::visit_array_access(ArrayAccess* access) {
 
 void Interpreter::evaluate() {
     AST* tree = parser->parse();
-    symbol_table_builder->visit(tree);
+    semantic_analyzer->visit(tree);
     visit(tree);
 }
 

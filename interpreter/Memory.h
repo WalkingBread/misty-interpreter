@@ -44,7 +44,6 @@ class Array : public MemoryValue {
         Array(std::vector<MemoryValue*> elements)
         : MemoryValue(Type::ARRAY) {
             this->elements = elements;
-            std::cout << elements.size() << std::endl;
         }
 
         Array()

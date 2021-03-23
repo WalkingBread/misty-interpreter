@@ -16,7 +16,12 @@ class Symbol {
 
 class SymbolTable {
     public:
+        int scope_level;
+        SymbolTable* enclosing_scope;
+
         std::map<std::string, Symbol*> symbols;
+
+        SymbolTable(int scope_level, SymbolTable* enclosing_scope);
 
         std::string str();
 

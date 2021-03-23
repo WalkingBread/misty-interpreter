@@ -7,7 +7,7 @@
 #include "../lexer/Lexer.h"
 #include "../parser/Parser.h"
 #include "Memory.h"
-#include "SymbolTableBuilder.h"
+#include "SemanticAnalyzer.h"
 #include "../utils/Values.h"
 #include "../utils/Error.h"
 
@@ -22,7 +22,7 @@ class Interpreter {
     private:
         Lexer* lexer;
         Parser* parser;
-        SymbolTableBuilder* symbol_table_builder;
+        SemanticAnalyzer* semantic_analyzer;
 
         MemoryValue* visit(AST* node);
         MemoryValue* visit_binary_op(BinaryOperator* op);

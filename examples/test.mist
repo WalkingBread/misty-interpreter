@@ -1,5 +1,19 @@
 have x = 10 / 3;
 have y = [1, 2, 3, 'xx', [1, 2, 3]];
-have i = 3;
-have t = i - 2;
-have z = y[i + 1][t + 1];
+have z = y[4][0];
+
+if(z is 2) {
+    have f = 10;
+    print(f);
+} else if(z is 3) {
+    have f = 20;
+    print(f);
+} else {
+    have f = 30;
+};
+
+print(f);
+
+have h = 10;
+print(h);
+

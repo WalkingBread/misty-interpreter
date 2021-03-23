@@ -1,18 +1,18 @@
-#ifndef SYMBOL_TABLE_BUILDER_H
-#define SYMBOL_TABLE_BUILDER_H
+#ifndef SEMANTIC_ANALYZER_H
+#define SEMANTIC_ANALYZER_H
 
 #include "Symbol.h"
 #include "../parser/AST.h"
 #include "../utils/Error.h"
 #include <iostream>
 
-class SymbolTableBuilder {
+class SemanticAnalyzer {
     public:
 
-        SymbolTable* table;
+        SymbolTable* current_scope;
 
-        SymbolTableBuilder() {
-            table = new SymbolTable();
+        SemanticAnalyzer() {
+            current_scope = NULL;
         }
 
         void visit(AST* node);

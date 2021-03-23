@@ -7,7 +7,7 @@ x = a == b and (c != 40 or b != 20);
 if(x is False and b == 20) {
     a = 40;
     print(a);
-}
+};
 print(b);
 
 have f = 10;
