@@ -55,6 +55,9 @@ MemoryValue* Interpreter::visit(AST* node) {
 
     } else if(ArrayInit* ast = dynamic_cast<ArrayInit*>(node)) {
         return visit_array_init(ast);
+
+    } else if(ArrayAccess* ast = dynamic_cast<ArrayAccess*>(node)) {
+        return visit_array_access(ast);
     }
 }
 
@@ -312,6 +315,39 @@ Array* Interpreter::visit_array_init(ArrayInit* array_init) {
     }
 
     return new Array(elements);
+}
+
+MemoryValue* Interpreter::visit_array_access(ArrayAccess* access) {
+    MemoryValue* arr = visit(access->array);
+
+    if(arr->type != Type::ARRAY) {
+        std::string message = "Given object is not an array.";
+        int line = access->array->token->line;
+        int column = access->array->token->column;
+
+        SyntaxError(line, column, message).cast();
+    }
+
+    Array* array = (Array*) arr;
+    
+    MemoryValue* index = visit(access->index);
+
+    if(index->type != Type::FLOAT) {
+        type_mismatch_error(access->index->token);
+    }
+
+    SingularMemoryValue* _index = (SingularMemoryValue*) index;
+    int i = std::stoi(_index->value);
+
+    if(i > array->elements.size() - 1) {
+        std::string message = "Index out of bounds.";
+        int line = access->index->token->line;
+        int column = access->index->token->column;
+
+        SyntaxError(line, column, message).cast();
+    }
+
+    return array->elements.at(i);
 }
 
 void Interpreter::evaluate() {

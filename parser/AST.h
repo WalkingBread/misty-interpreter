@@ -137,4 +137,13 @@ class ArrayInit : public AST {
         ~ArrayInit() override {};
 };
 
+class ArrayAccess : public AST {
+    public:
+        AST* array;
+        AST* index;
+
+        ArrayAccess(AST* array, AST* index);
+        ~ArrayAccess() override {};
+};
+
 #endif

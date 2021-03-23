@@ -37,6 +37,7 @@ class Parser {
         Print* print_statement();
 
         ArrayInit* array_init();
+        ArrayAccess* array_access(AST* array);
 
         void error(Token* token);
 };

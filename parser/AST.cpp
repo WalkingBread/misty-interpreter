@@ -64,3 +64,7 @@ ArrayInit::ArrayInit(std::vector<AST*> elements) {
     this->elements = elements;
 }
 
+ArrayAccess::ArrayAccess(AST* array, AST* index) {
+    this->array = array;
+    this->index = index;
+}

@@ -33,6 +33,7 @@ class Interpreter {
         MemoryValue* visit_var_declaration(VariableDeclaration* decl);
         MemoryValue* visit_if_condition(IfCondition* cond);
         MemoryValue* visit_print(Print* print);
+        MemoryValue* visit_array_access(ArrayAccess* access);
         
         Array* visit_array_init(ArrayInit* array_init);
 

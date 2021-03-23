@@ -20,6 +20,13 @@ class Error {
             this->error_message = message;
         }
 
+        Error(int line, int column, std::string message) {
+            this->error_type = "Error: ";
+            this->line = line;
+            this->column = column;
+            this->error_message = message;
+        }
+
         void cast() {
             std::cout << error_type << "line " << line << ", column " << column << ": " << error_message << std::endl;
             exit(0);

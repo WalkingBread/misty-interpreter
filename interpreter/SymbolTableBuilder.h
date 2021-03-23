@@ -32,6 +32,7 @@ class SymbolTableBuilder {
         void visit_if_condition(IfCondition* cond);
         void visit_print(Print* print);
         void visit_array_init(ArrayInit* array_init);
+        void visit_array_access(ArrayAccess* access);
 
         void name_error(Token* token);
 };

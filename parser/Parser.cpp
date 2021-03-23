@@ -39,6 +39,7 @@ std::vector<AST*> Parser::statement_list() {
 Variable* Parser::variable() {
     Variable* node = new Variable(current_token);
     eat(TokenType::IDENTIFIER);
+
     return node;
 }
 
@@ -81,9 +82,7 @@ VariableDeclaration* Parser::variable_declaration() {
             var_decl->assignments.push_back(assignment);
             i++;
         }
-        
     }
-
     return var_decl;
 }
 
@@ -195,6 +194,23 @@ AST* Parser::term() {
     return node;
 }
 
+ArrayAccess* Parser::array_access(AST* array) {
+    eat(TokenType::L_SQUARED);
+    AST* index = expr();
+    eat(TokenType::R_SQUARED);
+
+    ArrayAccess* access = new ArrayAccess(array, index);
+
+    while(current_token->type_of(TokenType::L_SQUARED)) {
+        eat(TokenType::L_SQUARED);
+        AST* index = expr();
+        eat(TokenType::R_SQUARED);
+        access = new ArrayAccess(access, index);
+    }
+
+    return access;
+}
+
 ArrayInit* Parser::array_init() {
     eat(TokenType::L_SQUARED);
 
@@ -267,11 +283,19 @@ AST* Parser::factor() {
         }
         case TokenType::L_SQUARED:
         {
-            return array_init();
+            AST* node = array_init();
+            if(current_token->type_of(TokenType::L_SQUARED)) {
+                node = array_access(node);
+            }
+            return node;
         }
         
         default:
-            return variable();
+            AST* node = variable();
+            if(current_token->type_of(TokenType::L_SQUARED)) {
+                node = array_access(node);
+            }
+            return node;
     }
     
 }

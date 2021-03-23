@@ -42,6 +42,9 @@ void SymbolTableBuilder::visit(AST* node) {
 
     } else if(ArrayInit* ast = dynamic_cast<ArrayInit*>(node)) {
         visit_array_init(ast);
+
+    } else if(ArrayAccess* ast = dynamic_cast<ArrayAccess*>(node)) {
+        visit_array_access(ast);
     }
 }
 
@@ -140,4 +143,9 @@ void SymbolTableBuilder::visit_array_init(ArrayInit* array_init) {
     for(AST* node : array_init->elements) {
         visit(node);
     }
+}
+
+void SymbolTableBuilder::visit_array_access(ArrayAccess* access) {
+    visit(access->array);
+    visit(access->index);
 }

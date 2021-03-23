@@ -1,2 +1,5 @@
 have x = 10 / 3;
 have y = [1, 2, 3, 'xx', [1, 2, 3]];
+have i = 3;
+have t = i - 2;
+have z = y[i + 1][t + 1];
