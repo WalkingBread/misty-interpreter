@@ -6,4 +6,7 @@ func foo(x, y) {
     };
 };
 
-foo(5, 8);
+foo(-5, 17);
+
+have z = [1, 2, 3];
+have x = z[2];

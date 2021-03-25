@@ -19,6 +19,8 @@ class Parser {
 
         void eat(TokenType type);
 
+        std::vector<AST*> collection(TokenType ending);
+
         AST* sub_add();
         AST* eq_not_eq();
         AST* term();
@@ -32,6 +34,7 @@ class Parser {
         AST* statement();
         std::vector<AST*> statement_list();
 
+        VariableDeclaration* standard_variable_declaration();
         VariableDeclaration* variable_declaration();
         IfCondition* if_statement();
         IfCondition* else_statement();

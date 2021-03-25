@@ -72,7 +72,6 @@ ArrayAccess::ArrayAccess(AST* array, AST* index) {
 FunctionInit::FunctionInit(std::string func_name, VariableDeclaration* params, Compound* block) {
     this->func_name = func_name;
     this->params = params;
-
     this->block = block;
 }
 

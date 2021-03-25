@@ -13,6 +13,24 @@ void Parser::error(Token* token) {
     SyntaxError(line, column, message).cast();
 }
 
+std::vector<AST*> Parser::collection(TokenType ending) {
+    std::vector<AST*> collection;
+    if(!current_token->type_of(ending)) {
+        AST* element = expr();
+        collection.push_back(element);
+
+        while(current_token->type_of(TokenType::COMMA)) {
+            eat(TokenType::COMMA);
+
+            element = expr();
+            collection.push_back(element);
+        }
+    }
+    eat(ending);
+
+    return collection;
+}
+
 Compound* Parser::compound_statement() {
     eat(TokenType::L_CURLY);
     std::vector<AST*> nodes = statement_list();
@@ -45,7 +63,7 @@ Variable* Parser::variable() {
     return node;
 }
 
-VariableDeclaration* Parser::variable_declaration() {
+VariableDeclaration* Parser::standard_variable_declaration() {
     Variable* var = new Variable(current_token);
     eat(TokenType::IDENTIFIER);
 
@@ -53,17 +71,20 @@ VariableDeclaration* Parser::variable_declaration() {
 
     while(current_token->type_of(TokenType::COMMA)) {
         eat(TokenType::COMMA);
-        Variable* var = new Variable(current_token);
-        eat(TokenType::IDENTIFIER);
+        Variable* var = variable();
         variables.push_back(var);
     }
 
-    VariableDeclaration* var_decl = new VariableDeclaration(variables);
+    return new VariableDeclaration(variables);
+}
+
+VariableDeclaration* Parser::variable_declaration() {
+    VariableDeclaration* var_decl = standard_variable_declaration();
 
     if(current_token->type_of(TokenType::ASSIGN)) {
         eat(TokenType::ASSIGN);
 
-        Variable* left = variables.at(0);
+        Variable* left = var_decl->variables.at(0);
         AST* right = expr();
         Assign* assignment = new Assign(left, new Token(TokenType::ASSIGN, "="), right);
 
@@ -72,11 +93,11 @@ VariableDeclaration* Parser::variable_declaration() {
         int i = 1;
         while(current_token->type_of(TokenType::COMMA)) {
             eat(TokenType::COMMA);
-            if(i > variables.size()) {
+            if(i > var_decl->variables.size()) {
                 error(current_token);
             }
 
-            Variable* left = variables.at(i);
+            Variable* left = var_decl->variables.at(i);
             AST* right = expr();
             Assign* assignment = new Assign(left, new Token(TokenType::ASSIGN, "="), right);
 
@@ -145,7 +166,7 @@ FunctionInit* Parser::function_init_statement() {
     VariableDeclaration* params = NULL;
 
     if(current_token->type_of(TokenType::IDENTIFIER)) {
-        params = variable_declaration();
+        params = standard_variable_declaration();
     }
 
     eat(TokenType::R_PAREN);
@@ -158,37 +179,13 @@ FunctionInit* Parser::function_init_statement() {
 FunctionCall* Parser::function_call(AST* function) {
     eat(TokenType::L_PAREN);
 
-    std::vector<AST*> params;
-    if(!current_token->type_of(TokenType::R_PAREN)) {
-        AST* param = expr();
-        params.push_back(param);
-
-        while(current_token->type_of(TokenType::COMMA)) {
-            eat(TokenType::COMMA);
-
-            param = expr();
-            params.push_back(param);
-        }
-    }
-    eat(TokenType::R_PAREN);
-
+    std::vector<AST*> params = collection(TokenType::R_PAREN);
     FunctionCall* func_call = new FunctionCall(function, params);
+
     while(current_token->type_of(TokenType::L_PAREN)) {
         eat(TokenType::L_PAREN);
 
-        std::vector<AST*> params;
-        if(current_token->type_of(TokenType::IDENTIFIER)) {
-            AST* param = expr();
-            params.push_back(param);
-
-            while(current_token->type_of(TokenType::COMMA)) {
-                eat(TokenType::COMMA);
-
-                param = expr();
-                params.push_back(param);
-            }
-        }
-        eat(TokenType::R_PAREN);
+        std::vector<AST*> params = collection(TokenType::R_PAREN);
         func_call = new FunctionCall(func_call, params);
     }
 
@@ -238,20 +235,6 @@ AST* Parser::statement() {
 AST* Parser::term() {
     AST* node = factor();
 
-    /*if(current_token->type_of(TokenType::EQUALS) || current_token->type_of(TokenType::NOT_EQUALS)) {
-        std::vector<AST*> comparables = { node };
-        std::vector<Token*> operators;
-
-        while(current_token->type_of(TokenType::EQUALS) || current_token->type_of(TokenType::NOT_EQUALS)) {
-            Token* op = current_token;
-            eat(current_token->type);
-
-            comparables.push_back(factor());
-            operators.push_back(op);
-        }
-        return new Compare(comparables, operators);
-    }*/
-
     while(current_token->type_of(TokenType::MULT) || 
           current_token->type_of(TokenType::DIV) || 
           current_token->type_of(TokenType::INT_DIV) ||
@@ -284,19 +267,8 @@ ArrayAccess* Parser::array_access(AST* array) {
 
 ArrayInit* Parser::array_init() {
     eat(TokenType::L_SQUARED);
+    std::vector<AST*> elements = collection(TokenType::R_SQUARED);
 
-    std::vector<AST*> elements = {};
-
-    if(!current_token->type_of(TokenType::R_SQUARED)) {
-        elements.push_back(expr());
-
-        while(current_token->type_of(TokenType::COMMA)) {
-            eat(TokenType::COMMA);
-            elements.push_back(expr());
-        }
-    }
-
-    eat(TokenType::R_SQUARED);
     return new ArrayInit(elements);
 }
 
