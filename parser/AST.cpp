@@ -79,3 +79,7 @@ FunctionCall::FunctionCall(AST* function, std::vector<AST*> params) {
     this->function = function;
     this->params = params;
 }
+
+Return::Return(AST* returnable) {
+    this->returnable = returnable;
+}

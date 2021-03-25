@@ -6,7 +6,16 @@ func foo(x, y) {
     };
 };
 
-foo(-5, 17);
+have xx;
 
 have z = [1, 2, 3];
-have x = z[2];
+have x = z[0];
+
+have g = foo(1, 2);
+
+func pow2(a) {
+    return a * a;
+};
+
+have num = pow2(x);
+

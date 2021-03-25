@@ -192,6 +192,13 @@ FunctionCall* Parser::function_call(AST* function) {
     return func_call;
 }
 
+Return* Parser::return_statement() {
+    eat(TokenType::RETURN);
+    AST* returnable = expr();
+
+    return new Return(returnable);
+}
+
 AST* Parser::statement() {
     AST* node;
 
@@ -223,6 +230,10 @@ AST* Parser::statement() {
 
         case TokenType::FUNCTION:
             node = function_init_statement();
+            break;
+
+        case TokenType::RETURN:
+            node = return_statement();
             break;
 
         default:

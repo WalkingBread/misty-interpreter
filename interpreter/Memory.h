@@ -25,11 +25,15 @@ class MemoryValue {
         }
 
         virtual ~MemoryValue() = 0;
+        
+        virtual std::string str() = 0;
 };
 
 class SingularMemoryValue : public MemoryValue {
     public:
         std::string value;
+
+        std::string str() override;
 
         SingularMemoryValue(std::string value, Type type)
         : MemoryValue(type) {
@@ -51,7 +55,7 @@ class Array : public MemoryValue {
         Array()
         : MemoryValue(Type::ARRAY) {}
 
-        std::string str();
+        std::string str() override;
 
         ~Array() override {}
 };
@@ -64,6 +68,8 @@ class Function : public MemoryValue {
         : MemoryValue(Type::FUNCTION) {
             this->func = func;
         }
+
+        std::string str() override;
 
         ~Function() override {}
 };

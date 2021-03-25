@@ -40,6 +40,7 @@ class Parser {
         IfCondition* else_statement();
         Compound* compound_statement();
         Print* print_statement();
+        Return* return_statement();
 
         ArrayInit* array_init();
         ArrayAccess* array_access(AST* array);

@@ -35,6 +35,7 @@ class Interpreter {
         MemoryValue* visit_print(Print* print);
         MemoryValue* visit_array_access(ArrayAccess* access);
         MemoryValue* visit_function_call(FunctionCall* func_call);
+        MemoryValue* visit_return(Return* ret);
         
         Array* visit_array_init(ArrayInit* array_init);
         Function* visit_function_init(FunctionInit* func_init);

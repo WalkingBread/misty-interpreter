@@ -45,4 +45,24 @@ void Memory::put(std::string name, MemoryValue* val) {
     values[name] = val;
 }
 
-std::string Array::str() {}
+std::string SingularMemoryValue::str() {
+    return value;
+}
+
+std::string Function::str() {
+    return "function " + func->func_name;
+}
+
+std::string Array::str() {
+    std::string result = "[";
+    for(int i = 0; i < elements.size(); i++) {
+        MemoryValue* val = elements.at(i);
+        result += val->str();
+
+        if(i != elements.size() - 1) {
+            result += ", ";
+        }
+    }
+    result += "]";
+    return result;
+}

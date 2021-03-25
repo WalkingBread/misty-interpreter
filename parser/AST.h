@@ -165,4 +165,12 @@ class FunctionCall : public AST {
         ~FunctionCall() override {};
 };
 
+class Return : public AST {
+    public:
+        AST* returnable;
+
+        Return(AST* returnable);
+        ~Return() override {};
+};
+
 #endif

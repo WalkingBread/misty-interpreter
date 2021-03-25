@@ -74,7 +74,10 @@ MemoryValue* Interpreter::visit(AST* node) {
 
     } else if(FunctionCall* ast = dynamic_cast<FunctionCall*>(node)) {
         return visit_function_call(ast);
-    } 
+
+    } else if(Return* ast = dynamic_cast<Return*>(node)) {
+        return visit_return(ast);
+    }
 } 
 
 MemoryValue* Interpreter::visit_binary_op(BinaryOperator* op) {
@@ -240,11 +243,18 @@ MemoryValue* Interpreter::visit_compound(Compound* comp) {
         enter_new_memory_block();
     }
 
+    MemoryValue* return_value = NULL;
+
     for(AST* node : comp->children) {
+        if(Return* ret = dynamic_cast<Return*>(node)) {
+            return_value = visit_return(ret);
+        }
+
         visit(node);
     }
+
     leave_memory_block();
-    return NULL;
+    return return_value;
 }
 
 MemoryValue* Interpreter::visit_assign(Assign* assign) {
@@ -319,7 +329,6 @@ MemoryValue* Interpreter::visit_if_condition(IfCondition* cond) {
 
     std::string cond_value = ((SingularMemoryValue*) visit(condition))->value;
 
-
     if(cond_value == Values::TRUE) {
         enter_new_memory_block();
         visit(statement);
@@ -334,17 +343,13 @@ MemoryValue* Interpreter::visit_if_condition(IfCondition* cond) {
             }
         }
     }
-    
-
     return NULL;
 }
 
 MemoryValue* Interpreter::visit_print(Print* print) {
-    if(SingularMemoryValue* printable = (SingularMemoryValue*) visit(print->printable)) {
-        std::cout << printable->value << std::endl;
-    } else {
-        // print array
-    }
+    MemoryValue* printable_value = visit(print->printable);
+
+    std::cout << printable_value->str() << std::endl;
     
     return NULL;
 }
@@ -432,10 +437,18 @@ MemoryValue* Interpreter::visit_function_call(FunctionCall* func_call) {
         visit(assign);
     }
 
-    visit(function->func->block);
+    MemoryValue* ret = visit(function->func->block);
     leave_memory_block();
 
-    return NULL;
+    if(ret == NULL) {
+        return new SingularMemoryValue(Values::NONE, Type::NONE);
+    }
+    
+    return ret;
+}
+
+MemoryValue* Interpreter::visit_return(Return* ret) {
+    return visit(ret->returnable);
 }
 
 void Interpreter::evaluate() {

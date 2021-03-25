@@ -51,7 +51,10 @@ void SemanticAnalyzer::visit(AST* node) {
 
     } else if(FunctionCall* ast = dynamic_cast<FunctionCall*>(node)) {
         visit_function_call(ast);
-    } 
+
+    } else if(Return* ast = dynamic_cast<Return*>(node)) {
+        visit_return(ast);
+    }
 }
 
 void SemanticAnalyzer::enter_new_scope() {
@@ -189,4 +192,8 @@ void SemanticAnalyzer::visit_function_call(FunctionCall* func_call) {
     for(AST* param : func_call->params) {
         visit(param);
     }
+}
+
+void SemanticAnalyzer::visit_return(Return* ret) {
+    visit(ret->returnable);
 }
