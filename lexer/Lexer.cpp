@@ -31,6 +31,7 @@ void Lexer::create_keywords() {
     keywords["str"] = TokenType::CAST;
     keywords["float"] = TokenType::CAST;
     keywords["func"] = TokenType::FUNCTION;
+    keywords["return"] = TokenType::RETURN;
 }
 
 Token* Lexer::create_token(TokenType type, std::string value) {
@@ -107,7 +108,7 @@ Token* Lexer::string() {
 Token* Lexer::handle_identifiers() {
     std::string result = "";
 
-    while(current_char != NULL && isalnum(current_char)) {
+    while(current_char != NULL && (isalnum(current_char) || current_char == '_')) {
         result += current_char;
         advance();
     }
@@ -137,7 +138,7 @@ Token* Lexer::get_next_token() {
             return number();
         }
 
-        if(isalpha(current_char)) {
+        if(isalpha(current_char) || current_char == '_') {
             return handle_identifiers();
         }
 

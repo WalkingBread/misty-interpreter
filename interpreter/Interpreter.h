@@ -17,7 +17,7 @@ class Interpreter {
         
         void evaluate();
 
-        Memory* global_memory;
+        Memory* memory_block;
     
     private:
         Lexer* lexer;
@@ -34,14 +34,19 @@ class Interpreter {
         MemoryValue* visit_if_condition(IfCondition* cond);
         MemoryValue* visit_print(Print* print);
         MemoryValue* visit_array_access(ArrayAccess* access);
+        MemoryValue* visit_function_call(FunctionCall* func_call);
         
         Array* visit_array_init(ArrayInit* array_init);
+        Function* visit_function_init(FunctionInit* func_init);
 
         SingularMemoryValue* visit_unary_op(UnaryOperator* op);
         SingularMemoryValue* visit_value(Value* val);
         SingularMemoryValue* visit_compare(Compare* c);
         SingularMemoryValue* visit_double_condition(DoubleCondition* cond);
         SingularMemoryValue* visit_negation(Negation* neg);
+
+        void enter_new_memory_block();
+        void leave_memory_block();
 
         void type_mismatch_error(Token* token);
 };

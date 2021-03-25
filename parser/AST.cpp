@@ -37,7 +37,7 @@ DoubleCondition::DoubleCondition(AST* left, Token* op, AST* right) {
     this->right = right;
 }
 
-Variable::Variable(Token* token) : AST() {
+Variable::Variable(Token* token) {
     this->token = token;
     this->value = token->value;
 }
@@ -67,4 +67,16 @@ ArrayInit::ArrayInit(std::vector<AST*> elements) {
 ArrayAccess::ArrayAccess(AST* array, AST* index) {
     this->array = array;
     this->index = index;
+}
+
+FunctionInit::FunctionInit(std::string func_name, VariableDeclaration* params, Compound* block) {
+    this->func_name = func_name;
+    this->params = params;
+
+    this->block = block;
+}
+
+FunctionCall::FunctionCall(AST* function, std::vector<AST*> params) {
+    this->function = function;
+    this->params = params;
 }

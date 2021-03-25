@@ -18,6 +18,9 @@ class SemanticAnalyzer {
         void visit(AST* node);
 
     private:
+        void enter_new_scope();
+        void leave_scope();
+
         void visit_binary_op(BinaryOperator* op);
         void visit_unary_op(UnaryOperator* op);
         void visit_value(Value* val);
@@ -33,6 +36,8 @@ class SemanticAnalyzer {
         void visit_print(Print* print);
         void visit_array_init(ArrayInit* array_init);
         void visit_array_access(ArrayAccess* access);
+        void visit_function_init(FunctionInit* func_init);
+        void visit_function_call(FunctionCall* func_call);
 
         void name_error(Token* token);
 };

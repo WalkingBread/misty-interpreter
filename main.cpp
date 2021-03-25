@@ -19,7 +19,7 @@ int main(int argc, char** argv) {
     Interpreter interpreter(content);
 
     interpreter.evaluate();
-    std::cout << interpreter.global_memory->str();
+    std::cout << interpreter.memory_block->str();
 
     return 0;
 }

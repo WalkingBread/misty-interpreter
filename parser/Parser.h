@@ -19,6 +19,8 @@ class Parser {
 
         void eat(TokenType type);
 
+        AST* sub_add();
+        AST* eq_not_eq();
         AST* term();
         AST* factor();
         AST* expr();
@@ -26,7 +28,7 @@ class Parser {
         Variable* variable();
         NoOperator* empty();
 
-        Assign* assignment_statement();
+        AST* identifier_statement();
         AST* statement();
         std::vector<AST*> statement_list();
 
@@ -38,6 +40,9 @@ class Parser {
 
         ArrayInit* array_init();
         ArrayAccess* array_access(AST* array);
+
+        FunctionInit* function_init_statement();
+        FunctionCall* function_call(AST* function);
 
         void error(Token* token);
 };

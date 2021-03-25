@@ -1,19 +1,9 @@
-have x = 10 / 3;
-have y = [1, 2, 3, 'xx', [1, 2, 3]];
-have z = y[4][0];
-
-if(z is 2) {
-    have f = 10;
-    print(f);
-} else if(z is 3) {
-    have f = 20;
-    print(f);
-} else {
-    have f = 30;
+func foo(x, y) {
+    if(x + y == 12) {
+        print('yes');
+    } else {
+        print('no');
+    };
 };
 
-print(f);
-
-have h = 10;
-print(h);
-
+foo(5, 8);

@@ -9,13 +9,13 @@ void SymbolTable::define(Symbol* symbol) {
     symbols[symbol->name] = symbol;
 }
 
-Symbol* SymbolTable::lookup(std::string name) {
+Symbol* SymbolTable::lookup(std::string name, bool only_this_scope) {
     if(symbols.find(name) != symbols.end()) {
         return symbols.find(name)->second;
     }
 
-    if(enclosing_scope != NULL) {
-        return enclosing_scope->lookup(name);
+    if(!only_this_scope && enclosing_scope != NULL) {
+        return enclosing_scope->lookup(name, false);
     }
 
     return NULL;

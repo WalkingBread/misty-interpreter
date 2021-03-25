@@ -146,4 +146,23 @@ class ArrayAccess : public AST {
         ~ArrayAccess() override {};
 };
 
+class FunctionInit : public AST {
+    public:
+        std::string func_name;
+        VariableDeclaration* params;
+        Compound* block;
+
+        FunctionInit(std::string func_name, VariableDeclaration* params, Compound* block);
+        ~FunctionInit() override {};
+};
+
+class FunctionCall : public AST {
+    public:
+        AST* function;
+        std::vector<AST*> params;
+
+        FunctionCall(AST* function, std::vector<AST*> params);
+        ~FunctionCall() override {};
+};
+
 #endif

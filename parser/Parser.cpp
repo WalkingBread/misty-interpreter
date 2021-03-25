@@ -46,7 +46,6 @@ Variable* Parser::variable() {
 }
 
 VariableDeclaration* Parser::variable_declaration() {
-    eat(TokenType::VARIABLE_DECL);
     Variable* var = new Variable(current_token);
     eat(TokenType::IDENTIFIER);
 
@@ -92,9 +91,14 @@ NoOperator* Parser::empty() {
     return new NoOperator();
 }
 
-Assign* Parser::assignment_statement() {
+AST* Parser::identifier_statement() {
     Variable* left = variable();
     Token* token = current_token;
+
+    if(token->type_of(TokenType::L_PAREN)) {
+        return function_call(left);
+    }
+
     eat(TokenType::ASSIGN);
     AST* right = expr();
 
@@ -132,16 +136,77 @@ Print* Parser::print_statement() {
     return new Print(printable);
 }
 
+FunctionInit* Parser::function_init_statement() {
+    eat(TokenType::FUNCTION);
+    std::string func_name = current_token->value;
+    eat(TokenType::IDENTIFIER);
+    eat(TokenType::L_PAREN);
+
+    VariableDeclaration* params = NULL;
+
+    if(current_token->type_of(TokenType::IDENTIFIER)) {
+        params = variable_declaration();
+    }
+
+    eat(TokenType::R_PAREN);
+
+    Compound* block = compound_statement();
+
+    return new FunctionInit(func_name, params, block);
+}
+
+FunctionCall* Parser::function_call(AST* function) {
+    eat(TokenType::L_PAREN);
+
+    std::vector<AST*> params;
+    if(!current_token->type_of(TokenType::R_PAREN)) {
+        AST* param = expr();
+        params.push_back(param);
+
+        while(current_token->type_of(TokenType::COMMA)) {
+            eat(TokenType::COMMA);
+
+            param = expr();
+            params.push_back(param);
+        }
+    }
+    eat(TokenType::R_PAREN);
+
+    FunctionCall* func_call = new FunctionCall(function, params);
+    while(current_token->type_of(TokenType::L_PAREN)) {
+        eat(TokenType::L_PAREN);
+
+        std::vector<AST*> params;
+        if(current_token->type_of(TokenType::IDENTIFIER)) {
+            AST* param = expr();
+            params.push_back(param);
+
+            while(current_token->type_of(TokenType::COMMA)) {
+                eat(TokenType::COMMA);
+
+                param = expr();
+                params.push_back(param);
+            }
+        }
+        eat(TokenType::R_PAREN);
+        func_call = new FunctionCall(func_call, params);
+    }
+
+    return func_call;
+}
+
 AST* Parser::statement() {
     AST* node;
 
     switch(current_token->type) {
         case TokenType::VARIABLE_DECL:
+        {
+            eat(TokenType::VARIABLE_DECL);
             node = variable_declaration();
             break;
-
+        }
         case TokenType::IDENTIFIER:
-            node = assignment_statement();
+            node = identifier_statement();
             break;
 
         case TokenType::IF:
@@ -159,6 +224,10 @@ AST* Parser::statement() {
             node = print_statement();
             break;
 
+        case TokenType::FUNCTION:
+            node = function_init_statement();
+            break;
+
         default:
             node = empty();
     }
@@ -169,7 +238,7 @@ AST* Parser::statement() {
 AST* Parser::term() {
     AST* node = factor();
 
-    if(current_token->type_of(TokenType::EQUALS) || current_token->type_of(TokenType::NOT_EQUALS)) {
+    /*if(current_token->type_of(TokenType::EQUALS) || current_token->type_of(TokenType::NOT_EQUALS)) {
         std::vector<AST*> comparables = { node };
         std::vector<Token*> operators;
 
@@ -181,7 +250,7 @@ AST* Parser::term() {
             operators.push_back(op);
         }
         return new Compare(comparables, operators);
-    }
+    }*/
 
     while(current_token->type_of(TokenType::MULT) || 
           current_token->type_of(TokenType::DIV) || 
@@ -296,32 +365,36 @@ AST* Parser::factor() {
             AST* node = variable();
             if(current_token->type_of(TokenType::L_SQUARED)) {
                 node = array_access(node);
+
+            } else if(current_token->type_of(TokenType::L_PAREN)) {
+                node = function_call(node);
             }
             return node;
     }
     
 }
 
-void Parser::eat(TokenType type) {
-    if(current_token->type == type) {
-        current_token = lexer->get_next_token();
-    } else {
-        int current_type = static_cast<int>(current_token->type);
-        int expected_type = static_cast<int>(type);
+AST* Parser::eq_not_eq() {
+    AST* node = sub_add();
 
-        error(current_token);
+    if(current_token->type_of(TokenType::EQUALS) || current_token->type_of(TokenType::NOT_EQUALS)) {
+        std::vector<AST*> comparables = { node };
+        std::vector<Token*> operators;
+
+        while(current_token->type_of(TokenType::EQUALS) || current_token->type_of(TokenType::NOT_EQUALS)) {
+            Token* op = current_token;
+            eat(current_token->type);
+
+            comparables.push_back(factor());
+            operators.push_back(op);
+        }
+        node = new Compare(comparables, operators);
     }
+    return node;
 }
 
-AST* Parser::expr() {
+AST* Parser::sub_add() {
     AST* node = term();
-
-    while(current_token->type_of(TokenType::AND) || current_token->type_of(TokenType::OR)) {
-        Token* op = current_token;
-        eat(current_token->type);
-
-        node = new DoubleCondition(node, op, expr());
-    }
 
     while(current_token->type_of(TokenType::PLUS) || current_token->type_of(TokenType::MINUS)) {
         Token* token = current_token;
@@ -332,12 +405,32 @@ AST* Parser::expr() {
     return node;
 }
 
+AST* Parser::expr() {
+    AST* node = eq_not_eq();
+
+    while(current_token->type_of(TokenType::AND) || current_token->type_of(TokenType::OR)) {
+        Token* op = current_token;
+        eat(current_token->type);
+
+        node = new DoubleCondition(node, op, expr());
+    }
+
+    return node;
+}
+
+void Parser::eat(TokenType type) {
+    if(current_token->type == type) {
+        current_token = lexer->get_next_token();
+    } else {
+        error(current_token);
+    }
+}
+
 AST* Parser::parse() {
     Compound* program = new Compound();
     program->children = statement_list();
 
     if(!current_token->type_of(TokenType::END_OF_FILE)) {
-        std::cout << static_cast<int>(current_token->type) << std::endl;
         error(current_token);
     }
 

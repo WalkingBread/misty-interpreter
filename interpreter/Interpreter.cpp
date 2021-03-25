@@ -9,8 +9,18 @@ void Interpreter::type_mismatch_error(Token* token) {
 Interpreter::Interpreter(std::string code) {
     lexer = new Lexer(code);
     parser = new Parser(lexer);
-    global_memory = new Memory();
+    memory_block = new Memory(0, NULL);
     semantic_analyzer = new SemanticAnalyzer();
+}
+
+void Interpreter::enter_new_memory_block() {
+    memory_block = new Memory(memory_block->memory_level + 1, memory_block);
+}
+
+void Interpreter::leave_memory_block() {
+    if(memory_block->enclosing_memory_block->memory_level != 0) {
+        memory_block = memory_block->enclosing_memory_block;
+    }
 }
 
 MemoryValue* Interpreter::visit(AST* node) {
@@ -58,8 +68,14 @@ MemoryValue* Interpreter::visit(AST* node) {
 
     } else if(ArrayAccess* ast = dynamic_cast<ArrayAccess*>(node)) {
         return visit_array_access(ast);
-    }
-}
+
+    } else if(FunctionInit* ast = dynamic_cast<FunctionInit*>(node)) {
+        return visit_function_init(ast);
+
+    } else if(FunctionCall* ast = dynamic_cast<FunctionCall*>(node)) {
+        return visit_function_call(ast);
+    } 
+} 
 
 MemoryValue* Interpreter::visit_binary_op(BinaryOperator* op) {
     SingularMemoryValue* left = (SingularMemoryValue*) visit(op->left);
@@ -186,15 +202,32 @@ SingularMemoryValue* Interpreter::visit_compare(Compare* c) {
         AST* left = c->comparables[i];
         AST* right = c->comparables[i + 1];
 
-        std::string left_value = ((SingularMemoryValue*) visit(left))->value;
-        std::string right_value = ((SingularMemoryValue*) visit(right))->value;
+        SingularMemoryValue* left_memory_value = (SingularMemoryValue*) visit(left);
+        SingularMemoryValue* right_memory_value = (SingularMemoryValue*) visit(right);
+
+        std::string left_value = left_memory_value->value;
+        std::string right_value = right_memory_value->value;
 
         if(op->type_of(TokenType::EQUALS)) {
-            if(left_value != right_value) {
+            if(left_memory_value->type == Type::FLOAT && right_memory_value->type == Type::FLOAT) {
+                double left_val = std::stod(left_value);
+                double right_val = std::stod(right_value);
+
+                if(left_val != right_val) {
+                    return new SingularMemoryValue(Values::FALSE, Type::BOOLEAN);
+                }
+            } else if(left_value != right_value) {
                 return new SingularMemoryValue(Values::FALSE, Type::BOOLEAN);
             }
         } else if(op->type_of(TokenType::NOT_EQUALS)) {
-            if(left_value == right_value) {
+            if(left_memory_value->type == Type::FLOAT && right_memory_value->type == Type::FLOAT) {
+                double left_val = std::stod(left_value);
+                double right_val = std::stod(right_value);
+
+                if(left_val == right_val) {
+                    return new SingularMemoryValue(Values::FALSE, Type::BOOLEAN);
+                }
+            } else if(left_value == right_value) {
                 return new SingularMemoryValue(Values::FALSE, Type::BOOLEAN);
             }
         }
@@ -203,21 +236,26 @@ SingularMemoryValue* Interpreter::visit_compare(Compare* c) {
 }
 
 MemoryValue* Interpreter::visit_compound(Compound* comp) {
+    if(memory_block->memory_level == 0) {
+        enter_new_memory_block();
+    }
+
     for(AST* node : comp->children) {
         visit(node);
     }
+    leave_memory_block();
     return NULL;
 }
 
 MemoryValue* Interpreter::visit_assign(Assign* assign) {
     std::string var_name = assign->left->value;
-    global_memory->put(var_name, visit(assign->right));
+    memory_block->put(var_name, visit(assign->right));
 
     return NULL;
 }
 
 MemoryValue* Interpreter::visit_variable(Variable* var) {
-    MemoryValue* val = global_memory->get(var->value);
+    MemoryValue* val = memory_block->get(var->value);
 
     if(val != NULL) {
         return val;
@@ -281,18 +319,23 @@ MemoryValue* Interpreter::visit_if_condition(IfCondition* cond) {
 
     std::string cond_value = ((SingularMemoryValue*) visit(condition))->value;
 
+
     if(cond_value == Values::TRUE) {
+        enter_new_memory_block();
         visit(statement);
     } else {
         for(IfCondition* else_ : cond->elses) {
             std::string else_cond_value = ((SingularMemoryValue*) visit(else_->condition))->value;
 
             if(else_cond_value == Values::TRUE) {
+                enter_new_memory_block();
                 visit(else_->statement);
                 return NULL;
             }
         }
     }
+    
+
     return NULL;
 }
 
@@ -348,6 +391,51 @@ MemoryValue* Interpreter::visit_array_access(ArrayAccess* access) {
     }
 
     return array->elements.at(i);
+}
+
+Function* Interpreter::visit_function_init(FunctionInit* func_init) {
+    memory_block->put(func_init->func_name, new Function(func_init));
+    return NULL;
+}
+
+MemoryValue* Interpreter::visit_function_call(FunctionCall* func_call) {
+    MemoryValue* func = visit(func_call->function);
+
+    if(func->type != Type::FUNCTION) {
+        std::string message = "Given object is not a function.";
+        int line = func_call->function->token->line;
+        int column = func_call->function->token->column;
+
+        SyntaxError(line, column, message).cast();
+    }
+
+    Function* function = (Function*) func;
+    enter_new_memory_block();
+
+    VariableDeclaration* func_params = function->func->params;
+
+    visit(func_params);
+
+    if(func_params->variables.size() != func_call->params.size()) {
+        std::string message = "Inconsistent number of arguments.";
+        int line = func_call->function->token->line;
+        int column = func_call->function->token->column;
+
+        SyntaxError(line, column, message).cast();
+    }
+
+    for(int i = 0; i < func_params->variables.size(); i++) {
+        Variable* param = func_params->variables.at(i);
+        AST* actual_param = func_call->params.at(i);
+        
+        Assign* assign = new Assign(param, new Token(TokenType::ASSIGN, "="), actual_param);
+        visit(assign);
+    }
+
+    visit(function->func->block);
+    leave_memory_block();
+
+    return NULL;
 }
 
 void Interpreter::evaluate() {

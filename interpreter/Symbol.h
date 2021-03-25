@@ -26,7 +26,7 @@ class SymbolTable {
         std::string str();
 
         void define(Symbol* symbol);
-        Symbol* lookup(std::string name);
+        Symbol* lookup(std::string name, bool only_this_scope);
 };
 
 #endif

@@ -2,6 +2,11 @@
 
 MemoryValue::~MemoryValue() {}
 
+Memory::Memory(int memory_level, Memory* enclosing_memory_block) {
+    this->memory_level = memory_level;
+    this->enclosing_memory_block = enclosing_memory_block;
+}
+
 std::string Memory::str() {
     std::string result = "Symbols: \n";
 
@@ -14,6 +19,8 @@ std::string Memory::str() {
             result += sing->value;
         } else if(Array* arr = dynamic_cast<Array*>(it->second)) {
              result += "array";
+        } else if(Function* func = dynamic_cast<Function*>(it->second)) {
+            result += "function";
         }
 
         result += "\n";
@@ -26,6 +33,11 @@ MemoryValue* Memory::get(std::string name) {
     if(values.find(name) != values.end()) {
         return values.find(name)->second;
     }
+
+    if(enclosing_memory_block != NULL) {
+        return enclosing_memory_block->get(name);
+    }
+
     return NULL;
 }
 

@@ -5,12 +5,14 @@
 #include <map>
 #include <iostream>
 #include <vector>
+#include "../parser/AST.h"
 
 enum class Type {
     FLOAT,
     STRING,
     BOOLEAN,
     ARRAY,
+    FUNCTION,
     NONE
 };
 
@@ -54,9 +56,25 @@ class Array : public MemoryValue {
         ~Array() override {}
 };
 
+class Function : public MemoryValue {
+    public:
+        FunctionInit* func;
+
+        Function(FunctionInit* func)
+        : MemoryValue(Type::FUNCTION) {
+            this->func = func;
+        }
+
+        ~Function() override {}
+};
+
 class Memory {
     public:
         std::map<std::string, MemoryValue*> values;
+        Memory* enclosing_memory_block;
+        int memory_level;
+
+        Memory(int memory_level, Memory* enclosing_memory_block);
 
         std::string str();
 

@@ -45,7 +45,22 @@ void SemanticAnalyzer::visit(AST* node) {
 
     } else if(ArrayAccess* ast = dynamic_cast<ArrayAccess*>(node)) {
         visit_array_access(ast);
-    }
+
+    } else if(FunctionInit* ast = dynamic_cast<FunctionInit*>(node)) {
+        visit_function_init(ast);
+
+    } else if(FunctionCall* ast = dynamic_cast<FunctionCall*>(node)) {
+        visit_function_call(ast);
+    } 
+}
+
+void SemanticAnalyzer::enter_new_scope() {
+    int scope_level = current_scope->scope_level + 1;
+    current_scope = new SymbolTable(scope_level, current_scope);
+}
+
+void SemanticAnalyzer::leave_scope() {
+    current_scope = current_scope->enclosing_scope;
 }
 
 void SemanticAnalyzer::name_error(Token* token) {
@@ -76,24 +91,18 @@ void SemanticAnalyzer::visit_compare(Compare* c) {
 void SemanticAnalyzer::visit_compound(Compound* comp) {
     if(current_scope == NULL) {
         current_scope = new SymbolTable(1, NULL);
-
-    } else {
-        int scope_level = current_scope->scope_level + 1;
-        current_scope = new SymbolTable(scope_level, current_scope);
     }
 
     for(AST* node : comp->children) {
         visit(node);
     }
-
-    current_scope = current_scope->enclosing_scope;
 }
 
 void SemanticAnalyzer::visit_assign(Assign* assign) {
     Variable* var = assign->left;
     std::string var_name = var->value;
 
-    Symbol* var_symbol =  current_scope->lookup(var_name);
+    Symbol* var_symbol =  current_scope->lookup(var_name, false);
 
     if(var_symbol == NULL) {
         name_error(var->token);
@@ -104,7 +113,7 @@ void SemanticAnalyzer::visit_assign(Assign* assign) {
 
 void SemanticAnalyzer::visit_variable(Variable* var) {
     std::string var_name = var->value;
-    Symbol* var_symbol = current_scope->lookup(var_name);
+    Symbol* var_symbol = current_scope->lookup(var_name, false);
 
     if(var_symbol == NULL) {
         name_error(var->token);
@@ -126,7 +135,7 @@ void SemanticAnalyzer::visit_var_declaration(VariableDeclaration* decl) {
     for(Variable* var : decl->variables) {
         std::string name = var->value;
 
-        if(current_scope->lookup(name) != NULL) {
+        if(current_scope->lookup(name, true) != NULL) {
             std::string message = "Variable "  + name + " has already been declared.";
             int line = var->token->line;
             int column = var->token->column;
@@ -142,7 +151,10 @@ void SemanticAnalyzer::visit_var_declaration(VariableDeclaration* decl) {
 
 void SemanticAnalyzer::visit_if_condition(IfCondition* cond) {
     visit(cond->condition);
+
+    enter_new_scope();
     visit(cond->statement);
+    leave_scope();
 }
 
 void SemanticAnalyzer::visit_print(Print* print) {
@@ -158,4 +170,23 @@ void SemanticAnalyzer::visit_array_init(ArrayInit* array_init) {
 void SemanticAnalyzer::visit_array_access(ArrayAccess* access) {
     visit(access->array);
     visit(access->index);
+}
+
+void SemanticAnalyzer::visit_function_init(FunctionInit* func_init) {
+    Symbol* func_symbol = new Symbol(func_init->func_name);
+    current_scope->define(func_symbol);
+
+    enter_new_scope();
+
+    visit(func_init->params);
+    visit(func_init->block);
+
+    leave_scope();
+}
+
+void SemanticAnalyzer::visit_function_call(FunctionCall* func_call) {
+    visit(func_call->function);
+    for(AST* param : func_call->params) {
+        visit(param);
+    }
 }
