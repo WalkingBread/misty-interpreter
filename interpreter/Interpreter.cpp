@@ -243,18 +243,30 @@ MemoryValue* Interpreter::visit_compound(Compound* comp) {
         enter_new_memory_block();
     }
 
-    MemoryValue* return_value = NULL;
-
     for(AST* node : comp->children) {
         if(Return* ret = dynamic_cast<Return*>(node)) {
-            return_value = visit_return(ret);
+            if(comp->inside_func) {
+                MemoryValue* return_value = visit_return(ret);
+                leave_memory_block();
+                return return_value;
+            }
+
+            std::string message = "Return statement without function declaration.";
+            int line = ret->token->line;
+            int column = ret->token->column;
+            SyntaxError(line, column, message).cast();
         }
 
-        visit(node);
+        MemoryValue* value = visit(node);
+
+        if(comp->inside_func && value != NULL) {
+            leave_memory_block();
+            return value;
+        } 
     }
 
     leave_memory_block();
-    return return_value;
+    return NULL;
 }
 
 MemoryValue* Interpreter::visit_assign(Assign* assign) {
@@ -329,21 +341,22 @@ MemoryValue* Interpreter::visit_if_condition(IfCondition* cond) {
 
     std::string cond_value = ((SingularMemoryValue*) visit(condition))->value;
 
+    MemoryValue* return_val = NULL;
+
     if(cond_value == Values::TRUE) {
         enter_new_memory_block();
-        visit(statement);
+        return_val = visit(statement);
     } else {
         for(IfCondition* else_ : cond->elses) {
             std::string else_cond_value = ((SingularMemoryValue*) visit(else_->condition))->value;
 
             if(else_cond_value == Values::TRUE) {
                 enter_new_memory_block();
-                visit(else_->statement);
-                return NULL;
+                return visit(else_->statement);
             }
         }
     }
-    return NULL;
+    return return_val;
 }
 
 MemoryValue* Interpreter::visit_print(Print* print) {
@@ -419,25 +432,41 @@ MemoryValue* Interpreter::visit_function_call(FunctionCall* func_call) {
 
     VariableDeclaration* func_params = function->func->params;
 
-    visit(func_params);
+    if(func_params != NULL) {
+        visit(func_params);
 
-    if(func_params->variables.size() != func_call->params.size()) {
-        std::string message = "Inconsistent number of arguments.";
-        int line = func_call->function->token->line;
-        int column = func_call->function->token->column;
+        std::cout << func_params->variables.size() << std::endl;
 
-        SyntaxError(line, column, message).cast();
+        if(func_params->variables.size() != func_call->params.size()) {
+            std::string message = "Inconsistent number of arguments.";
+            int line = func_call->function->token->line;
+            int column = func_call->function->token->column;
+
+            SyntaxError(line, column, message).cast();
+        }
+
+        for(int i = 0; i < func_params->variables.size(); i++) {
+            Variable* param = func_params->variables.at(i);
+            AST* actual_param = func_call->params.at(i);
+            
+            Assign* assign = new Assign(param, new Token(TokenType::ASSIGN, "="), actual_param);
+            visit(assign);
+        }
+    } else {
+        if(func_call->params.size() > 0) {
+            std::string message = "Function " + function->func->func_name + " has no arguments, but " + 
+            std::to_string(func_call->params.size()) + " were given.";
+
+            int line = func_call->function->token->line;
+            int column = func_call->function->token->column;
+
+            SyntaxError(line, column, message).cast();
+        }
     }
 
-    for(int i = 0; i < func_params->variables.size(); i++) {
-        Variable* param = func_params->variables.at(i);
-        AST* actual_param = func_call->params.at(i);
-        
-        Assign* assign = new Assign(param, new Token(TokenType::ASSIGN, "="), actual_param);
-        visit(assign);
-    }
 
     MemoryValue* ret = visit(function->func->block);
+
     leave_memory_block();
 
     if(ret == NULL) {

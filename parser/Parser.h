@@ -17,6 +17,8 @@ class Parser {
         Lexer* lexer;
         Token* current_token;
 
+        bool inside_func;
+
         void eat(TokenType type);
 
         std::vector<AST*> collection(TokenType ending);

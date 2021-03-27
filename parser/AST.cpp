@@ -80,6 +80,11 @@ FunctionCall::FunctionCall(AST* function, std::vector<AST*> params) {
     this->params = params;
 }
 
-Return::Return(AST* returnable) {
+Return::Return(Token* token, AST* returnable) {
+    this->token = token;
     this->returnable = returnable;
+}
+
+Compound::Compound(bool inside_func) {
+    this->inside_func = inside_func;
 }

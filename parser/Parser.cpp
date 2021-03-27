@@ -4,6 +4,8 @@
 Parser::Parser(Lexer* lexer) {
     this->lexer = lexer;
     current_token = lexer->get_next_token();
+
+    inside_func = false;
 }
 
 void Parser::error(Token* token) {
@@ -37,7 +39,7 @@ Compound* Parser::compound_statement() {
 
     eat(TokenType::R_CURLY);
 
-    Compound* root = new Compound();
+    Compound* root = new Compound(inside_func);
     root->children = nodes;
 
     return root;
@@ -171,7 +173,9 @@ FunctionInit* Parser::function_init_statement() {
 
     eat(TokenType::R_PAREN);
 
+    inside_func = true;
     Compound* block = compound_statement();
+    inside_func = false;
 
     return new FunctionInit(func_name, params, block);
 }
@@ -193,10 +197,11 @@ FunctionCall* Parser::function_call(AST* function) {
 }
 
 Return* Parser::return_statement() {
+    Token* token = current_token;
     eat(TokenType::RETURN);
     AST* returnable = expr();
 
-    return new Return(returnable);
+    return new Return(token, returnable);
 }
 
 AST* Parser::statement() {
@@ -410,7 +415,7 @@ void Parser::eat(TokenType type) {
 }
 
 AST* Parser::parse() {
-    Compound* program = new Compound();
+    Compound* program = new Compound(inside_func);
     program->children = statement_list();
 
     if(!current_token->type_of(TokenType::END_OF_FILE)) {

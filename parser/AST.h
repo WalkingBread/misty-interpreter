@@ -8,7 +8,7 @@
 
 class AST {
     public:
-        Token* token;
+        Token* token = NULL;
 
         virtual ~AST() = 0;
 };
@@ -45,6 +45,9 @@ class UnaryOperator : public AST {
 class Compound : public AST {
     public:
         std::vector<AST*> children;
+        bool inside_func;
+
+        Compound(bool inside_func);
         ~Compound() override {};
 
 };
@@ -169,7 +172,7 @@ class Return : public AST {
     public:
         AST* returnable;
 
-        Return(AST* returnable);
+        Return(Token* token, AST* returnable);
         ~Return() override {};
 };
 

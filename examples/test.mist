@@ -1,21 +1,10 @@
-func foo(x, y) {
-    if(x + y == 12) {
-        print('yes');
+func pow2(a, b) {
+    if(b == 2) {
+        return a * a;
     } else {
-        print('no');
+        return a / 3.141592653;
     };
 };
 
-have xx;
-
-have z = [1, 2, 3];
-have x = z[0];
-
-have g = foo(1, 2);
-
-func pow2(a) {
-    return a * a;
-};
-
-have num = pow2(x);
+have x = pow2(2, 1);
 
