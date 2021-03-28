@@ -270,8 +270,23 @@ MemoryValue* Interpreter::visit_compound(Compound* comp) {
 }
 
 MemoryValue* Interpreter::visit_assign(Assign* assign) {
-    std::string var_name = assign->left->value;
-    memory_block->put(var_name, visit(assign->right));
+    AST* left = assign->left;
+
+    if(Variable* var = dynamic_cast<Variable*>(left)) {
+        std::string var_name = var->value;
+        memory_block->put(var_name, visit(assign->right));
+
+    } else if(ArrayAccess* arr_acc = dynamic_cast<ArrayAccess*>(left)) {
+        Array* arr = (Array*) visit(arr_acc->array);
+
+        SingularMemoryValue* index = (SingularMemoryValue*) visit(arr_acc->index);
+        if(index->type != Type::FLOAT) {
+            type_mismatch_error(arr_acc->index->token);
+        }
+
+        MemoryValue* new_val = visit(assign->right);
+        arr->elements.at(std::stoi(index->value)) = new_val;
+    }
 
     return NULL;
 }

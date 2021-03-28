@@ -20,7 +20,7 @@ UnaryOperator::UnaryOperator(Token* op, AST* expr) {
     this->expr = expr;
 }
 
-Assign::Assign(Variable* left, Token* op, AST* right) {
+Assign::Assign(AST* left, Token* op, AST* right) {
     this->token = this->op = op;
     this->left = left;
     this->right = right;

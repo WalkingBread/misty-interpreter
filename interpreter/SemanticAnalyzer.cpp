@@ -102,13 +102,17 @@ void SemanticAnalyzer::visit_compound(Compound* comp) {
 }
 
 void SemanticAnalyzer::visit_assign(Assign* assign) {
-    Variable* var = assign->left;
-    std::string var_name = var->value;
+    AST* left = assign->left;
+    if(Variable* var = dynamic_cast<Variable*>(left)) {
+        std::string var_name = var->value;
 
-    Symbol* var_symbol =  current_scope->lookup(var_name, false);
+        Symbol* var_symbol = current_scope->lookup(var_name, false);
 
-    if(var_symbol == NULL) {
-        name_error(var->token);
+        if(var_symbol == NULL) {
+            name_error(var->token);
+        }
+    } else if(ArrayAccess* arr_acc = dynamic_cast<ArrayAccess*>(left)) {
+        visit_array_access(arr_acc);
     }
 
     visit(assign->right);

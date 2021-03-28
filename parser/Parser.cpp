@@ -115,11 +115,15 @@ NoOperator* Parser::empty() {
 }
 
 AST* Parser::identifier_statement() {
-    Variable* left = variable();
+    AST* left = variable();
     Token* token = current_token;
 
     if(token->type_of(TokenType::L_PAREN)) {
         return function_call(left);
+    }
+
+    if(token->type_of(TokenType::L_SQUARED)) {
+        left = array_access(left);
     }
 
     eat(TokenType::ASSIGN);
@@ -173,9 +177,15 @@ FunctionInit* Parser::function_init_statement() {
 
     eat(TokenType::R_PAREN);
 
-    inside_func = true;
-    Compound* block = compound_statement();
-    inside_func = false;
+    Compound* block;
+
+    if(inside_func) {
+        block = compound_statement();
+    } else {
+        inside_func = true;
+        block = compound_statement();
+        inside_func = false;
+    }
 
     return new FunctionInit(func_name, params, block);
 }

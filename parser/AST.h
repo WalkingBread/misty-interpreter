@@ -62,11 +62,11 @@ class Variable : public AST {
 
 class Assign : public AST {
     public:
-        Variable* left;
+        AST* left;
         Token* op;
         AST* right;
 
-        Assign(Variable* left, Token* op, AST* right);
+        Assign(AST* left, Token* op, AST* right);
         ~Assign() override {};
 };
 
