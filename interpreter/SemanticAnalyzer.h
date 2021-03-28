@@ -39,6 +39,7 @@ class SemanticAnalyzer {
         void visit_function_init(FunctionInit* func_init);
         void visit_function_call(FunctionCall* func_call);
         void visit_return(Return* ret);
+        void visit_while_loop(WhileLoop* while_loop);
 
         void name_error(Token* token);
 };

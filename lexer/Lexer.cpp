@@ -32,6 +32,8 @@ void Lexer::create_keywords() {
     keywords["float"] = TokenType::CAST;
     keywords["func"] = TokenType::FUNCTION;
     keywords["return"] = TokenType::RETURN;
+    keywords["for"] = TokenType::FOR;
+    keywords["while"] = TokenType::WHILE;
 }
 
 Token* Lexer::create_token(TokenType type, std::string value) {
@@ -166,7 +168,7 @@ Token* Lexer::get_next_token() {
         if(current_char == '!' && peek() == '=') {
             advance();
             advance();
-            return create_token(TokenType::NOT_EQUALS, "==");
+            return create_token(TokenType::NOT_EQUALS, "!=");
         }
 
         if(current_char == '!') {
@@ -178,6 +180,28 @@ Token* Lexer::get_next_token() {
             advance();
             advance();
             return create_token(TokenType::EQUALS, "==");
+        }
+
+        if(current_char == '>' && peek() == '=') {
+            advance();
+            advance();
+            return create_token(TokenType::MORE_OR_EQ, ">=");
+        }
+
+        if(current_char == '<' && peek() == '=') {
+            advance();
+            advance();
+            return create_token(TokenType::LESS_OR_EQ, "<=");
+        }
+
+        if(current_char == '<') {
+            advance();
+            return create_token(TokenType::LESS, "<");
+        }
+
+        if(current_char == '>') {
+            advance();
+            return create_token(TokenType::MORE, ">");
         }
 
         if(current_char == '=') {

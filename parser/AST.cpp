@@ -88,3 +88,8 @@ Return::Return(Token* token, AST* returnable) {
 Compound::Compound(bool inside_func) {
     this->inside_func = inside_func;
 }
+
+WhileLoop::WhileLoop(AST* condition, Compound* statement) {
+    this->condition = condition;
+    this->statement = statement;
+}

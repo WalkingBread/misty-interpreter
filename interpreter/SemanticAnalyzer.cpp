@@ -54,6 +54,10 @@ void SemanticAnalyzer::visit(AST* node) {
 
     } else if(Return* ast = dynamic_cast<Return*>(node)) {
         visit_return(ast);
+
+    } else if(WhileLoop* ast = dynamic_cast<WhileLoop*>(node)) {
+        visit_while_loop(ast);
+        
     }
 }
 
@@ -200,4 +204,12 @@ void SemanticAnalyzer::visit_function_call(FunctionCall* func_call) {
 
 void SemanticAnalyzer::visit_return(Return* ret) {
     visit(ret->returnable);
+}
+
+void SemanticAnalyzer::visit_while_loop(WhileLoop* while_loop) {
+    visit(while_loop->condition);
+
+    enter_new_scope();
+    visit(while_loop->statement);
+    leave_scope();
 }

@@ -18,7 +18,7 @@ std::string Memory::str() {
         if(SingularMemoryValue* sing = dynamic_cast<SingularMemoryValue*>(it->second)) {
             result += sing->value;
         } else if(Array* arr = dynamic_cast<Array*>(it->second)) {
-             result += "array";
+            result += "array";
         } else if(Function* func = dynamic_cast<Function*>(it->second)) {
             result += "function";
         }
@@ -29,20 +29,30 @@ std::string Memory::str() {
     return result;
 }
 
-MemoryValue* Memory::get(std::string name) {
+MemoryValue* Memory::get(std::string name, bool only_this_block) {
     if(values.find(name) != values.end()) {
         return values.find(name)->second;
     }
 
-    if(enclosing_memory_block != NULL) {
-        return enclosing_memory_block->get(name);
+    if(enclosing_memory_block != NULL && !only_this_block) {
+        return enclosing_memory_block->get(name, false);
     }
 
     return NULL;
 }
 
 void Memory::put(std::string name, MemoryValue* val) {
-    values[name] = val;
+    Memory* scope = this;
+
+    while(scope->get(name, true) == NULL) {
+        if(scope->enclosing_memory_block != NULL) {
+            scope = scope->enclosing_memory_block;
+        } else {
+            break;
+        }
+    }
+
+    scope->values[name] = val;
 }
 
 std::string SingularMemoryValue::str() {

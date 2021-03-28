@@ -154,6 +154,16 @@ IfCondition* Parser::else_statement() {
     }
 }
 
+WhileLoop* Parser::while_loop_statement() {
+    eat(TokenType::WHILE);
+    eat(TokenType::L_PAREN);
+    AST* condition = expr();
+    eat(TokenType::R_PAREN);
+
+    Compound* statement = compound_statement();
+    return new WhileLoop(condition, statement);
+};
+
 Print* Parser::print_statement() {
     eat(TokenType::PRINT);
     eat(TokenType::L_PAREN);
@@ -238,6 +248,10 @@ AST* Parser::statement() {
             node = cond;
             break;
         }
+        
+        case TokenType::WHILE:
+            node = while_loop_statement();
+            break;
 
         case TokenType::PRINT:
             node = print_statement();
@@ -375,11 +389,23 @@ AST* Parser::factor() {
 AST* Parser::eq_not_eq() {
     AST* node = sub_add();
 
-    if(current_token->type_of(TokenType::EQUALS) || current_token->type_of(TokenType::NOT_EQUALS)) {
+    if(current_token->type_of(TokenType::EQUALS) || 
+       current_token->type_of(TokenType::NOT_EQUALS) ||
+       current_token->type_of(TokenType::MORE_OR_EQ) ||
+       current_token->type_of(TokenType::LESS_OR_EQ) ||
+       current_token->type_of(TokenType::LESS) ||
+       current_token->type_of(TokenType::MORE) 
+    ) {
         std::vector<AST*> comparables = { node };
         std::vector<Token*> operators;
 
-        while(current_token->type_of(TokenType::EQUALS) || current_token->type_of(TokenType::NOT_EQUALS)) {
+        while(current_token->type_of(TokenType::EQUALS) || 
+              current_token->type_of(TokenType::NOT_EQUALS) ||
+              current_token->type_of(TokenType::MORE_OR_EQ) ||
+              current_token->type_of(TokenType::LESS_OR_EQ) ||
+              current_token->type_of(TokenType::LESS) ||
+              current_token->type_of(TokenType::MORE) 
+        ) {
             Token* op = current_token;
             eat(current_token->type);
 

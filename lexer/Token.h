@@ -36,7 +36,13 @@ enum class TokenType {
     FUNCTION = 30,
     L_SQUARED = 31,
     R_SQUARED = 32,
-    RETURN = 33
+    RETURN = 33,
+    WHILE = 34,
+    FOR = 35,
+    MORE = 36,
+    LESS = 37,
+    MORE_OR_EQ = 38,
+    LESS_OR_EQ = 39
 };
 
 class Token {

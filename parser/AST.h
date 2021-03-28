@@ -176,4 +176,13 @@ class Return : public AST {
         ~Return() override {};
 };
 
+class WhileLoop : public AST {
+    public:
+        AST* condition;
+        Compound* statement;
+
+        WhileLoop(AST* condition, Compound* compound);
+        ~WhileLoop() override {};
+};
+
 #endif

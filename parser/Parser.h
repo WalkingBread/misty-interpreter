@@ -40,6 +40,7 @@ class Parser {
         VariableDeclaration* variable_declaration();
         IfCondition* if_statement();
         IfCondition* else_statement();
+        WhileLoop* while_loop_statement();
         Compound* compound_statement();
         Print* print_statement();
         Return* return_statement();

@@ -86,7 +86,7 @@ class Memory {
 
         void put(std::string name, MemoryValue* val);
 
-        MemoryValue* get(std::string name);
+        MemoryValue* get(std::string name, bool only_this_block);
 };
 
 #endif

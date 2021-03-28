@@ -77,6 +77,10 @@ MemoryValue* Interpreter::visit(AST* node) {
 
     } else if(Return* ast = dynamic_cast<Return*>(node)) {
         return visit_return(ast);
+
+    } else if(WhileLoop* ast = dynamic_cast<WhileLoop*>(node)) {
+        return visit_while_loop(ast);
+        
     }
 } 
 
@@ -233,6 +237,50 @@ SingularMemoryValue* Interpreter::visit_compare(Compare* c) {
             } else if(left_value == right_value) {
                 return new SingularMemoryValue(Values::FALSE, Type::BOOLEAN);
             }
+        } else if(op->type_of(TokenType::MORE_OR_EQ)) {
+            if(left_memory_value->type == Type::FLOAT && right_memory_value->type == Type::FLOAT) {
+                double left_val = std::stod(left_value);
+                double right_val = std::stod(right_value);
+
+                if(left_val < right_val) {
+                    return new SingularMemoryValue(Values::FALSE, Type::BOOLEAN);
+                }
+            } else {
+                type_mismatch_error(left->token);
+            }
+        } else if(op->type_of(TokenType::LESS_OR_EQ)) {
+            if(left_memory_value->type == Type::FLOAT && right_memory_value->type == Type::FLOAT) {
+                double left_val = std::stod(left_value);
+                double right_val = std::stod(right_value);
+
+                if(left_val > right_val) {
+                    return new SingularMemoryValue(Values::FALSE, Type::BOOLEAN);
+                }
+            } else {
+                type_mismatch_error(left->token);
+            }
+        } else if(op->type_of(TokenType::LESS)) {
+            if(left_memory_value->type == Type::FLOAT && right_memory_value->type == Type::FLOAT) {
+                double left_val = std::stod(left_value);
+                double right_val = std::stod(right_value);
+
+                if(left_val >= right_val) {
+                    return new SingularMemoryValue(Values::FALSE, Type::BOOLEAN);
+                }
+            } else {
+                type_mismatch_error(left->token);
+            }
+        } else if(op->type_of(TokenType::MORE)) {
+            if(left_memory_value->type == Type::FLOAT && right_memory_value->type == Type::FLOAT) {
+                double left_val = std::stod(left_value);
+                double right_val = std::stod(right_value);
+
+                if(left_val <= right_val) {
+                    return new SingularMemoryValue(Values::FALSE, Type::BOOLEAN);
+                }
+            } else {
+                type_mismatch_error(left->token);
+            }
         }
     }
     return new SingularMemoryValue(Values::TRUE, Type::BOOLEAN);
@@ -292,7 +340,7 @@ MemoryValue* Interpreter::visit_assign(Assign* assign) {
 }
 
 MemoryValue* Interpreter::visit_variable(Variable* var) {
-    MemoryValue* val = memory_block->get(var->value);
+    MemoryValue* val = memory_block->get(var->value, false);
 
     if(val != NULL) {
         return val;
@@ -343,6 +391,10 @@ SingularMemoryValue* Interpreter::visit_negation(Negation* neg) {
 }
 
 MemoryValue* Interpreter::visit_var_declaration(VariableDeclaration* decl) {
+    for(Variable* var : decl->variables) {
+        memory_block->put(var->value, NULL);
+    }
+
     for(Assign* assignment : decl->assignments) {
         visit(assignment);
     }
@@ -493,6 +545,24 @@ MemoryValue* Interpreter::visit_function_call(FunctionCall* func_call) {
 
 MemoryValue* Interpreter::visit_return(Return* ret) {
     return visit(ret->returnable);
+}
+
+MemoryValue* Interpreter::visit_while_loop(WhileLoop* while_loop) {
+    AST* condition = while_loop->condition;
+    Compound* statement = while_loop->statement;
+
+    std::string cond_value = ((SingularMemoryValue*) visit(condition))->value;
+
+    MemoryValue* return_val = NULL;
+
+    while(cond_value == Values::TRUE) {
+        enter_new_memory_block();
+        return_val = visit(statement);
+
+        cond_value = ((SingularMemoryValue*) visit(condition))->value;
+    } 
+
+    return return_val;
 }
 
 void Interpreter::evaluate() {
