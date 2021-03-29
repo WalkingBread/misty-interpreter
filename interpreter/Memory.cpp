@@ -45,7 +45,7 @@ void Memory::put(std::string name, MemoryValue* val) {
     Memory* scope = this;
 
     while(scope->get(name, true) == NULL) {
-        if(scope->enclosing_memory_block != NULL) {
+        if(scope->memory_level != 1) {
             scope = scope->enclosing_memory_block;
         } else {
             break;

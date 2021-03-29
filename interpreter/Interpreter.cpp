@@ -391,10 +391,6 @@ SingularMemoryValue* Interpreter::visit_negation(Negation* neg) {
 }
 
 MemoryValue* Interpreter::visit_var_declaration(VariableDeclaration* decl) {
-    for(Variable* var : decl->variables) {
-        memory_block->put(var->value, NULL);
-    }
-
     for(Assign* assignment : decl->assignments) {
         visit(assignment);
     }
