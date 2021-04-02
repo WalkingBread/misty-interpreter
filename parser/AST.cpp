@@ -1,7 +1,7 @@
 #include "AST.h"
 #include <iostream>
 
-AST::~AST() {}
+AST::~AST() = default;
 
 Value::Value(Token* token) {
     this->token = token;
@@ -92,4 +92,9 @@ Compound::Compound(bool inside_func) {
 WhileLoop::WhileLoop(AST* condition, Compound* statement) {
     this->condition = condition;
     this->statement = statement;
+}
+
+ClassInit::ClassInit(std::string class_name, Compound* block) {
+    this->class_name = class_name;
+    this->block = block;
 }

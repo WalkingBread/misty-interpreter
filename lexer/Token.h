@@ -19,6 +19,7 @@ enum class TokenType {
     VARIABLE_DECL,
     COMMA,
     ASSIGN,
+    COLON,
     SEMICOLON,
     END_OF_FILE,
     STRING,
@@ -42,7 +43,8 @@ enum class TokenType {
     MORE,
     LESS,
     MORE_OR_EQ,
-    LESS_OR_EQ
+    LESS_OR_EQ,
+    CLASS
 };
 
 class Token {

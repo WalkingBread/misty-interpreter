@@ -185,4 +185,13 @@ class WhileLoop : public AST {
         ~WhileLoop() override {};
 };
 
+class ClassInit : public AST {
+    public:
+        std::string class_name;
+        Compound* block;
+
+        ClassInit(std::string class_name, Compound* block);
+        ~ClassInit() override {};
+};
+
 #endif

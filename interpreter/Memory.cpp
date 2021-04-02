@@ -1,6 +1,6 @@
 #include "Memory.h"
 
-MemoryValue::~MemoryValue() {}
+MemoryValue::~MemoryValue() = default;
 
 Memory::Memory(int memory_level, Memory* enclosing_memory_block) {
     this->memory_level = memory_level;

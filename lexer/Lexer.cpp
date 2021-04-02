@@ -34,6 +34,33 @@ void Lexer::create_keywords() {
     keywords["return"] = TokenType::RETURN;
     keywords["for"] = TokenType::FOR;
     keywords["while"] = TokenType::WHILE;
+    keywords["class"] = TokenType::CLASS;
+
+    keywords[";"] = TokenType::SEMICOLON;
+    keywords[":"] = TokenType::COLON;
+    keywords[","] = TokenType::COMMA;
+    keywords["("] = TokenType::L_PAREN;
+    keywords[")"] = TokenType::R_PAREN;
+    keywords["["] = TokenType::L_SQUARED;
+    keywords["]"] = TokenType::R_SQUARED;
+    keywords["{"] = TokenType::L_CURLY;
+    keywords["}"] = TokenType::R_CURLY;
+    keywords["-"] = TokenType::MINUS;
+    keywords["+"] = TokenType::PLUS;
+    keywords["/"] = TokenType::DIV;
+    keywords["//"] = TokenType::INT_DIV;
+    keywords["*"] = TokenType::MULT;
+    keywords["%"] = TokenType::MODULO;
+    keywords["="] = TokenType::ASSIGN;
+    keywords["=="] = TokenType::EQUALS;
+    keywords["!="] = TokenType::NOT_EQUALS;
+    keywords[">="] = TokenType::MORE_OR_EQ;
+    keywords["<="] = TokenType::LESS_OR_EQ;
+    keywords[">"] = TokenType::MORE;
+    keywords["<"] = TokenType::LESS;
+    keywords["&&"] = TokenType::AND;
+    keywords["||"] = TokenType::OR;
+    keywords["!"] = TokenType::NOT;
 }
 
 Token* Lexer::create_token(TokenType type, std::string value) {
@@ -120,14 +147,13 @@ Token* Lexer::handle_identifiers() {
 
         return create_token(it->second, it->first);
     }
+
     return create_token(TokenType::IDENTIFIER, result);
 }
-
 
 Token* Lexer::get_next_token() {
 
     while(current_char != NULL) {
-
         if(isspace(current_char)) {
             skip_whitespace();
 
@@ -148,131 +174,22 @@ Token* Lexer::get_next_token() {
             return string();
         }
 
-        if(current_char == ',') {
+        std::string single {current_char};
+        std::string peeked {current_char, peek()};
+
+        if(keywords.find(peeked) != keywords.end()) {
             advance();
-            return create_token(TokenType::COMMA, ",");
+            advance();
+
+            std::map<std::string, TokenType>::iterator it = keywords.find(peeked);
+            return create_token(it->second, it->first);
         }
 
-        if(current_char == '&' && peek() == '&') {
+        if(keywords.find(single) != keywords.end()) {
             advance();
-            advance();
-            return create_token(TokenType::AND, "&&");
-        }
 
-        if(current_char == '|' && peek() == '|') {
-            advance();
-            advance();
-            return create_token(TokenType::OR, "||");
-        }
-
-        if(current_char == '!' && peek() == '=') {
-            advance();
-            advance();
-            return create_token(TokenType::NOT_EQUALS, "!=");
-        }
-
-        if(current_char == '!') {
-            advance();
-            return create_token(TokenType::NOT, "!");
-        }
-
-        if(current_char == '=' && peek() == '=') {
-            advance();
-            advance();
-            return create_token(TokenType::EQUALS, "==");
-        }
-
-        if(current_char == '>' && peek() == '=') {
-            advance();
-            advance();
-            return create_token(TokenType::MORE_OR_EQ, ">=");
-        }
-
-        if(current_char == '<' && peek() == '=') {
-            advance();
-            advance();
-            return create_token(TokenType::LESS_OR_EQ, "<=");
-        }
-
-        if(current_char == '<') {
-            advance();
-            return create_token(TokenType::LESS, "<");
-        }
-
-        if(current_char == '>') {
-            advance();
-            return create_token(TokenType::MORE, ">");
-        }
-
-        if(current_char == '=') {
-            advance();
-            return create_token(TokenType::ASSIGN, "=");
-        }
-
-        if(current_char == ';') {
-            advance();
-            return create_token(TokenType::SEMICOLON, ";");
-        }
-
-        if(current_char == '+') {
-            advance();
-            return create_token(TokenType::PLUS, "+");
-        }
-
-        if(current_char == '-') {
-            advance();
-            return create_token(TokenType::MINUS, "-");
-        }
-
-        if(current_char == '*') {
-            advance();
-            return create_token(TokenType::MULT, "*");
-        }
-
-        if(current_char == '/' && peek() == '/') {
-            advance();
-            advance();
-            return create_token(TokenType::INT_DIV, "//");
-        }
-
-        if(current_char == '/') {
-            advance();
-            return create_token(TokenType::DIV, "/");
-        }
-
-        if(current_char == '%') {
-            advance();
-            return create_token(TokenType::MODULO, "%");
-        }
-
-        if(current_char == '(') {
-            advance();
-            return create_token(TokenType::L_PAREN, "(");
-        }
-
-        if(current_char == ')') {
-            advance();
-            return create_token(TokenType::R_PAREN, ")");
-        }
-
-        if(current_char == '{') {
-            advance();
-            return create_token(TokenType::L_CURLY, "{");
-        }
-
-        if(current_char == '}') {
-            advance();
-            return create_token(TokenType::R_CURLY, "}");
-        }
-
-        if(current_char == '[') {
-            advance();
-            return create_token(TokenType::L_SQUARED, "[");
-        } 
-
-        if(current_char == ']') {
-            advance();
-            return create_token(TokenType::R_SQUARED, "]");
+            std::map<std::string, TokenType>::iterator it = keywords.find(single);
+            return create_token(it->second, it->first);
         }
 
         std::string message = "Unidentified token: " + current_char;

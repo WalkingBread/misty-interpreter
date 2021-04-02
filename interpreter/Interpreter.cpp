@@ -498,8 +498,6 @@ MemoryValue* Interpreter::visit_function_call(FunctionCall* func_call) {
     if(func_params != NULL) {
         visit(func_params);
 
-        std::cout << func_params->variables.size() << std::endl;
-
         if(func_params->variables.size() != func_call->params.size()) {
             std::string message = "Inconsistent number of arguments.";
             int line = func_call->function->token->line;
