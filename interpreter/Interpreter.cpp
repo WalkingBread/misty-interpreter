@@ -6,6 +6,11 @@ void Interpreter::type_mismatch_error(Token* token) {
     SyntaxError(token->line, token->column, message).cast();
 }
 
+void Interpreter::value_error(Token* token) {
+    std::string message = "Value cannot be converted to " + token->value + ".";
+    ValueError(token->line, token->column, message).cast();
+}
+
 Interpreter::Interpreter(std::string code) {
     lexer = new Lexer(code);
     parser = new Parser(lexer);
@@ -81,7 +86,15 @@ MemoryValue* Interpreter::visit(AST* node) {
     } else if(WhileLoop* ast = dynamic_cast<WhileLoop*>(node)) {
         return visit_while_loop(ast);
         
-    }
+    } else if(CastValue* ast = dynamic_cast<CastValue*>(node)) {
+        return visit_cast_value(ast);
+        
+    } 
+
+    std::string message = "Unknown AST branch.";
+    int line = node->token->line;
+    int column = node->token->column;
+    Error(line, column, message).cast();
 } 
 
 MemoryValue* Interpreter::visit_binary_op(BinaryOperator* op) {
@@ -557,6 +570,97 @@ MemoryValue* Interpreter::visit_while_loop(WhileLoop* while_loop) {
     } 
 
     return return_val;
+}
+
+SingularMemoryValue* Interpreter::visit_cast_value(CastValue* cast) {
+    MemoryValue* memory_val = visit(cast->value);
+
+    if(SingularMemoryValue* memory_value = dynamic_cast<SingularMemoryValue*>(memory_val)) {
+        std::string value = memory_value->value;
+        Type type = memory_value->type;
+
+        switch(cast->type->type) {
+            case TokenType::CAST_FLOAT:
+            {
+                int dots = 0;
+
+                for(char c : value) {
+                    if(!isdigit(c) && c != '.') {
+                        value_error(cast->type);
+                    }
+
+                    if(c == '.') {
+                        dots++;
+
+                        if(dots > 1) {
+                            value_error(cast->type);
+                        }
+                    }
+                }
+                std::string new_value = std::to_string(std::stod(value));
+                return new SingularMemoryValue(new_value, Type::FLOAT);
+            }
+            case TokenType::CAST_INT:
+            {
+                int dots = 0;
+
+                for(char c : value) {
+                    if(!isdigit(c) && c != '.') {
+                        value_error(cast->type);
+                    }
+
+                    if(c == '.') {
+                        dots++;
+
+                        if(dots > 1) {
+                            value_error(cast->type);
+                        }
+                    }
+                }
+                std::string new_value = std::to_string(std::stoi(value));
+                return new SingularMemoryValue(new_value, Type::FLOAT);
+            }
+            case TokenType::CAST_STRING:
+            {
+                return new SingularMemoryValue(value, Type::STRING);
+            }
+            case TokenType::CAST_BOOL:
+            {
+                if(value == Values::TRUE || value == Values::FALSE) {
+                    return new SingularMemoryValue(value, Type::BOOLEAN);
+                }
+
+                value_error(cast->type);
+            }
+        }
+    } else if(Array* array = dynamic_cast<Array*>(memory_val)) {
+        switch(cast->type->type) {
+            case TokenType::CAST_STRING:
+            {
+                return new SingularMemoryValue(array->str(), Type::STRING);
+            }
+            case TokenType::CAST_INT:
+            {
+                int length = array->elements.size();
+                return new SingularMemoryValue(std::to_string(length), Type::FLOAT);
+            }
+            case TokenType::CAST_FLOAT:
+            {
+                double length = array->elements.size();
+                return new SingularMemoryValue(std::to_string(length), Type::FLOAT);
+            }
+            case TokenType::CAST_BOOL:
+            {
+                int length = array->elements.size();
+                if(length > 0) {
+                    return new SingularMemoryValue(Values::TRUE, Type::BOOLEAN);
+                }
+                return new SingularMemoryValue(Values::FALSE, Type::BOOLEAN);
+            }
+        }
+    }
+
+    value_error(cast->type);
 }
 
 void Interpreter::evaluate() {

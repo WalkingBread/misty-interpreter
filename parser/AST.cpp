@@ -98,3 +98,9 @@ ClassInit::ClassInit(std::string class_name, Compound* block) {
     this->class_name = class_name;
     this->block = block;
 }
+
+CastValue::CastValue(AST* value, Token* type) {
+    this->value = value;
+    this->type = type;
+    this->token = type;
+}

@@ -45,4 +45,10 @@ class SyntaxError : public Error {
         : Error("SyntaxError: ", line, column, message) {}
 };
 
+class ValueError : public Error {
+    public:
+        ValueError(int line, int column, std::string message) 
+        : Error("ValueError: ", line, column, message) {}
+};
+
 #endif

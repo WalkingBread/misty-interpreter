@@ -46,11 +46,13 @@ class Interpreter {
         SingularMemoryValue* visit_compare(Compare* c);
         SingularMemoryValue* visit_double_condition(DoubleCondition* cond);
         SingularMemoryValue* visit_negation(Negation* neg);
+        SingularMemoryValue* visit_cast_value(CastValue* cast);
 
         void enter_new_memory_block();
         void leave_memory_block();
 
         void type_mismatch_error(Token* token);
+        void value_error(Token* token);
 };
 
 #endif

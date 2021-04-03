@@ -194,4 +194,14 @@ class ClassInit : public AST {
         ~ClassInit() override {};
 };
 
+class CastValue : public AST {
+    public:
+        AST* value;
+        Token* type;
+
+        CastValue(AST* value, Token* type);
+        ~CastValue() override {};
+
+};
+
 #endif

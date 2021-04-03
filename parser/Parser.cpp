@@ -272,22 +272,6 @@ AST* Parser::statement() {
     return node;
 }
 
-AST* Parser::term() {
-    AST* node = factor();
-
-    while(current_token->type_of(TokenType::MULT) || 
-          current_token->type_of(TokenType::DIV) || 
-          current_token->type_of(TokenType::INT_DIV) ||
-          current_token->type_of(TokenType::MODULO)
-    ) {
-        Token* token = current_token;
-        eat(current_token->type);
-        node = new BinaryOperator(node, token, factor());
-    }
-
-    return node;
-}
-
 ArrayAccess* Parser::array_access(AST* array) {
     eat(TokenType::L_SQUARED);
     AST* index = expr();
@@ -386,6 +370,57 @@ AST* Parser::factor() {
     
 }
 
+AST* Parser::cast() {
+    AST* node = factor();
+
+    while(current_token->type_of(TokenType::AS)) {
+        eat(TokenType::AS);
+
+        if(current_token->type_of(TokenType::CAST_INT) ||
+           current_token->type_of(TokenType::CAST_STRING) ||
+           current_token->type_of(TokenType::CAST_FLOAT) ||
+           current_token->type_of(TokenType::CAST_BOOL)
+        ) {
+            Token* type = current_token;
+            eat(current_token->type);
+
+            return new CastValue(node, type);
+        }
+
+        error(current_token);
+    }
+
+    return node;
+}
+
+AST* Parser::term() {
+    AST* node = cast();
+
+    while(current_token->type_of(TokenType::MULT) || 
+          current_token->type_of(TokenType::DIV) || 
+          current_token->type_of(TokenType::INT_DIV) ||
+          current_token->type_of(TokenType::MODULO)
+    ) {
+        Token* token = current_token;
+        eat(current_token->type);
+        node = new BinaryOperator(node, token, factor());
+    }
+
+    return node;
+}
+
+AST* Parser::sub_add() {
+    AST* node = term();
+
+    while(current_token->type_of(TokenType::PLUS) || current_token->type_of(TokenType::MINUS)) {
+        Token* token = current_token;
+        eat(current_token->type);
+        node = new BinaryOperator(node, token, term());
+    }
+
+    return node;
+}
+
 AST* Parser::eq_not_eq() {
     AST* node = sub_add();
 
@@ -414,18 +449,6 @@ AST* Parser::eq_not_eq() {
         }
         node = new Compare(comparables, operators);
     }
-    return node;
-}
-
-AST* Parser::sub_add() {
-    AST* node = term();
-
-    while(current_token->type_of(TokenType::PLUS) || current_token->type_of(TokenType::MINUS)) {
-        Token* token = current_token;
-        eat(current_token->type);
-        node = new BinaryOperator(node, token, term());
-    }
-
     return node;
 }
 

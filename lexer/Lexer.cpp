@@ -27,14 +27,16 @@ void Lexer::create_keywords() {
     keywords["if"] = TokenType::IF;
     keywords["else"] = TokenType::ELSE;
     keywords["print"] = TokenType::PRINT;
-    keywords["int"] = TokenType::CAST;
-    keywords["str"] = TokenType::CAST;
-    keywords["float"] = TokenType::CAST;
+    keywords["int"] = TokenType::CAST_INT;
+    keywords["string"] = TokenType::CAST_STRING;
+    keywords["float"] = TokenType::CAST_FLOAT;
+    keywords["bool"] = TokenType::CAST_BOOL;
     keywords["func"] = TokenType::FUNCTION;
     keywords["return"] = TokenType::RETURN;
     keywords["for"] = TokenType::FOR;
     keywords["while"] = TokenType::WHILE;
     keywords["class"] = TokenType::CLASS;
+    keywords["as"] = TokenType::AS;
 
     keywords[";"] = TokenType::SEMICOLON;
     keywords[":"] = TokenType::COLON;

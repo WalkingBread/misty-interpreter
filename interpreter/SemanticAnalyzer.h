@@ -40,6 +40,7 @@ class SemanticAnalyzer {
         void visit_function_call(FunctionCall* func_call);
         void visit_return(Return* ret);
         void visit_while_loop(WhileLoop* while_loop);
+        void visit_cast_value(CastValue* cast);
 
         void name_error(Token* token);
 };

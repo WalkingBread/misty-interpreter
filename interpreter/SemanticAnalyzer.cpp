@@ -57,7 +57,15 @@ void SemanticAnalyzer::visit(AST* node) {
 
     } else if(WhileLoop* ast = dynamic_cast<WhileLoop*>(node)) {
         visit_while_loop(ast);
+    
+    } else if(CastValue* ast = dynamic_cast<CastValue*>(node)) {
+        visit_cast_value(ast);
         
+    } else {
+        std::string message = "Unknown AST branch.";
+        int line = node->token->line;
+        int column = node->token->column;
+        Error(line, column, message).cast();
     }
 }
 
@@ -212,4 +220,8 @@ void SemanticAnalyzer::visit_while_loop(WhileLoop* while_loop) {
     enter_new_scope();
     visit(while_loop->statement);
     leave_scope();
+}
+
+void SemanticAnalyzer::visit_cast_value(CastValue* cast) {
+    visit(cast->value);
 }

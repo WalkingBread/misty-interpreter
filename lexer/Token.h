@@ -32,7 +32,10 @@ enum class TokenType {
     NONE,
     IF,
     ELSE,
-    CAST,
+    CAST_INT,
+    CAST_STRING,
+    CAST_FLOAT,
+    CAST_BOOL,
     PRINT,
     FUNCTION,
     L_SQUARED,
@@ -44,7 +47,8 @@ enum class TokenType {
     LESS,
     MORE_OR_EQ,
     LESS_OR_EQ,
-    CLASS
+    CLASS, 
+    AS
 };
 
 class Token {

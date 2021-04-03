@@ -23,10 +23,11 @@ class Parser {
 
         std::vector<AST*> collection(TokenType ending);
 
+        AST* factor();
+        AST* cast();
+        AST* term();
         AST* sub_add();
         AST* eq_not_eq();
-        AST* term();
-        AST* factor();
         AST* expr();
         
         Variable* variable();
