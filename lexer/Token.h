@@ -48,7 +48,8 @@ enum class TokenType {
     MORE_OR_EQ,
     LESS_OR_EQ,
     CLASS, 
-    AS
+    AS, 
+    IMPORT
 };
 
 class Token {
@@ -58,8 +59,10 @@ class Token {
 
         int line;
         int column;
-        
-        Token(TokenType type, std::string value, int line, int column);
+
+        std::string file;
+
+        Token(TokenType type, std::string value, int line, int column, std::string file);
         Token(TokenType type, std::string value);
 
         bool type_of(TokenType type);

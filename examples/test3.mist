@@ -1,0 +1,12 @@
+have x = 10;
+
+import 'examples/test4.mist' as object; 
+
+have val = object:y;
+have data = object:data;
+
+have i = 0;
+while(i < data as int) {
+    print(data[i]);
+    i = i + 1;
+};

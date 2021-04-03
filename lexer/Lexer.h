@@ -3,6 +3,7 @@
 
 #include <string>
 #include <map>
+#include <fstream>
 #include "Token.h"
 #include "../utils/Error.h"
 
@@ -14,6 +15,8 @@ class Lexer {
 
         Token* get_next_token();
         void error(std::string message);
+
+        std::string path;
 
         int line;
         int column;

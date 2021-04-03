@@ -2,8 +2,15 @@
 
 #include <iostream>
 
-Lexer::Lexer(std::string code) {
-    this->code = code;
+Lexer::Lexer(std::string path) {
+    this->path = path;
+
+    std::ifstream input_file(path);
+
+    std::string line;
+    while(std::getline(input_file, line)) {
+        code += line + '\n'; 
+    }
 
     pos = 0;
     current_char = code[pos];
@@ -37,6 +44,7 @@ void Lexer::create_keywords() {
     keywords["while"] = TokenType::WHILE;
     keywords["class"] = TokenType::CLASS;
     keywords["as"] = TokenType::AS;
+    keywords["import"] = TokenType::IMPORT;
 
     keywords[";"] = TokenType::SEMICOLON;
     keywords[":"] = TokenType::COLON;
@@ -66,7 +74,7 @@ void Lexer::create_keywords() {
 }
 
 Token* Lexer::create_token(TokenType type, std::string value) {
-    return new Token(type, value, line, column);
+    return new Token(type, value, line, column, path);
 }
 
 void Lexer::advance() {
@@ -126,7 +134,7 @@ Token* Lexer::string() {
     while(current_char != '\'') {
         if(current_char == '\n') {
             std::string message = "Reached end of line while parsing string.";
-            SyntaxError(line, column, message).cast();
+            SyntaxError(path, line, column, message).cast();
         }
         result += current_char;
         advance();
@@ -195,7 +203,7 @@ Token* Lexer::get_next_token() {
         }
 
         std::string message = "Unidentified token: " + current_char;
-        SyntaxError(line, column, message).cast();
+        SyntaxError(path, line, column, message).cast();
     }
 
     return create_token(TokenType::END_OF_FILE, "");

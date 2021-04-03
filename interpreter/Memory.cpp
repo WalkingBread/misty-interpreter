@@ -21,6 +21,8 @@ std::string Memory::str() {
             result += "array";
         } else if(Function* func = dynamic_cast<Function*>(it->second)) {
             result += "function";
+        } else if(Object* object = dynamic_cast<Object*>(it->second)) {
+            result += "object";
         }
 
         result += "\n";
@@ -75,4 +77,8 @@ std::string Array::str() {
     }
     result += "]";
     return result;
+}
+
+std::string Object::str() {
+    return "object";
 }

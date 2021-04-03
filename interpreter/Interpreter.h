@@ -13,15 +13,13 @@
 
 class Interpreter {
     public:
-        Interpreter(std::string code);
+        Interpreter();
         
-        void evaluate();
+        MemoryValue* evaluate(std::string path);
 
         Memory* memory_block;
     
     private:
-        Lexer* lexer;
-        Parser* parser;
         SemanticAnalyzer* semantic_analyzer;
 
         MemoryValue* visit(AST* node);
@@ -37,9 +35,11 @@ class Interpreter {
         MemoryValue* visit_function_call(FunctionCall* func_call);
         MemoryValue* visit_return(Return* ret);
         MemoryValue* visit_while_loop(WhileLoop* while_loop);
+        MemoryValue* visit_object_dive(ObjectDive* dive);
         
         Array* visit_array_init(ArrayInit* array_init);
         Function* visit_function_init(FunctionInit* func_init);
+        Object* visit_import(Import* import);
 
         SingularMemoryValue* visit_unary_op(UnaryOperator* op);
         SingularMemoryValue* visit_value(Value* val);

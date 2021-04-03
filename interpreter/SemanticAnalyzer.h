@@ -41,6 +41,8 @@ class SemanticAnalyzer {
         void visit_return(Return* ret);
         void visit_while_loop(WhileLoop* while_loop);
         void visit_cast_value(CastValue* cast);
+        void visit_import(Import* import);
+        void visit_object_dive(ObjectDive* dive);
 
         void name_error(Token* token);
 };

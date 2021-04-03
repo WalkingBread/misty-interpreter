@@ -104,3 +104,15 @@ CastValue::CastValue(AST* value, Token* type) {
     this->type = type;
     this->token = type;
 }
+
+Import::Import(Token* path, std::string name) {
+    this->path = path->value;
+    this->name = name;
+    this->token = path;
+}
+
+ObjectDive::ObjectDive(AST* parent, Token* colon, Variable* child) {
+    this->parent = parent;
+    this->child = child;
+    this->token = colon;
+}

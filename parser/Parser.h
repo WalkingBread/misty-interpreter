@@ -45,9 +45,12 @@ class Parser {
         Compound* compound_statement();
         Print* print_statement();
         Return* return_statement();
+        Import* import_statement();
 
         ArrayInit* array_init();
         ArrayAccess* array_access(AST* array);
+
+        ObjectDive* object_dive(AST* parent);
 
         FunctionInit* function_init_statement();
         FunctionCall* function_call(AST* function);

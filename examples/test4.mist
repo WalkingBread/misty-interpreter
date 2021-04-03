@@ -1,0 +1,4 @@
+have y = 'fuck the system';
+print(y);
+
+have data = [1, 2, 3, 4];

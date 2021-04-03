@@ -8,18 +8,10 @@
 int main(int argc, char** argv) {
     std::string path = argv[1];
 
-    std::string content = "";
-    std::ifstream input_file(path);
+    Interpreter* interpreter = new Interpreter();
 
-    std::string line;
-    while(std::getline(input_file, line)) {
-        content += line + '\n'; 
-    }
-
-    Interpreter interpreter(content);
-
-    interpreter.evaluate();
-    std::cout << interpreter.memory_block->str();
+    interpreter->evaluate(path);
+    std::cout << interpreter->memory_block->str();
 
     return 0;
 }

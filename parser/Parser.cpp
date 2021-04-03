@@ -12,7 +12,8 @@ void Parser::error(Token* token) {
     std::string message = "Unexpected token: " + token->value;
     int line = token->line;
     int column = token->column;
-    SyntaxError(line, column, message).cast();
+    std::string file_path = token->file;
+    SyntaxError(file_path, line, column, message).cast();
 }
 
 std::vector<AST*> Parser::collection(TokenType ending) {
@@ -114,6 +115,20 @@ NoOperator* Parser::empty() {
     return new NoOperator();
 }
 
+ObjectDive* Parser::object_dive(AST* parent) {
+    Token* colon = current_token;
+    eat(TokenType::COLON);
+    Variable* child = variable();
+
+    ObjectDive* dive = new ObjectDive(parent, colon, child);
+
+    if(current_token->type_of(TokenType::COLON)) {
+        dive = object_dive(dive);
+    }
+
+    return dive;
+}
+
 AST* Parser::identifier_statement() {
     AST* left = variable();
     Token* token = current_token;
@@ -124,6 +139,10 @@ AST* Parser::identifier_statement() {
 
     if(token->type_of(TokenType::L_SQUARED)) {
         left = array_access(left);
+    }
+
+    if(token->type_of(TokenType::COLON)) {
+        return object_dive(left);
     }
 
     eat(TokenType::ASSIGN);
@@ -224,6 +243,19 @@ Return* Parser::return_statement() {
     return new Return(token, returnable);
 }
 
+Import* Parser::import_statement() {
+    eat(TokenType::IMPORT);
+    Token* path = current_token;
+    eat(TokenType::STRING);
+    eat(TokenType::AS);
+
+    std::string name = current_token->value;
+
+    eat(TokenType::IDENTIFIER);
+
+    return new Import(path, name);
+}
+
 AST* Parser::statement() {
     AST* node;
 
@@ -263,6 +295,10 @@ AST* Parser::statement() {
 
         case TokenType::RETURN:
             node = return_statement();
+            break;
+
+        case TokenType::IMPORT:
+            node = import_statement();
             break;
 
         default:
@@ -364,6 +400,9 @@ AST* Parser::factor() {
 
             } else if(current_token->type_of(TokenType::L_PAREN)) {
                 node = function_call(node);
+
+            } else if(current_token->type_of(TokenType::COLON)) {
+                node = object_dive(node);
             }
             return node;
     }

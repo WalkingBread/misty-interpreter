@@ -3,17 +3,17 @@
 
 void Interpreter::type_mismatch_error(Token* token) {
     std::string message = "Type mismatch.";
-    SyntaxError(token->line, token->column, message).cast();
+    std::string file_path = token->file;
+    SyntaxError(file_path, token->line, token->column, message).cast();
 }
 
 void Interpreter::value_error(Token* token) {
     std::string message = "Value cannot be converted to " + token->value + ".";
-    ValueError(token->line, token->column, message).cast();
+    std::string file_path = token->file;
+    ValueError(file_path, token->line, token->column, message).cast();
 }
 
-Interpreter::Interpreter(std::string code) {
-    lexer = new Lexer(code);
-    parser = new Parser(lexer);
+Interpreter::Interpreter() {
     memory_block = new Memory(0, NULL);
     semantic_analyzer = new SemanticAnalyzer();
 }
@@ -89,12 +89,19 @@ MemoryValue* Interpreter::visit(AST* node) {
     } else if(CastValue* ast = dynamic_cast<CastValue*>(node)) {
         return visit_cast_value(ast);
         
+    } else if(Import* ast = dynamic_cast<Import*>(node)) {
+        return visit_import(ast);
+
+    } else if(ObjectDive* ast = dynamic_cast<ObjectDive*>(node)) {
+        return visit_object_dive(ast);
+
     } 
 
     std::string message = "Unknown AST branch.";
     int line = node->token->line;
     int column = node->token->column;
-    Error(line, column, message).cast();
+    std::string file_path = node->token->file;
+    Error(file_path, line, column, message).cast();
 } 
 
 MemoryValue* Interpreter::visit_binary_op(BinaryOperator* op) {
@@ -315,7 +322,8 @@ MemoryValue* Interpreter::visit_compound(Compound* comp) {
             std::string message = "Return statement without function declaration.";
             int line = ret->token->line;
             int column = ret->token->column;
-            SyntaxError(line, column, message).cast();
+            std::string file_path = ret->token->file;
+            SyntaxError(file_path, line, column, message).cast();
         }
 
         MemoryValue* value = visit(node);
@@ -327,6 +335,11 @@ MemoryValue* Interpreter::visit_compound(Compound* comp) {
     }
 
     leave_memory_block();
+    if(memory_block->memory_level == 1) {
+        Memory* object_memory = memory_block;
+        return new Object(object_memory);
+    }
+
     return NULL;
 }
 
@@ -361,7 +374,8 @@ MemoryValue* Interpreter::visit_variable(Variable* var) {
         std::string message = "Variable has not been initialized.";
         int line = var->token->line;
         int column = var->token->column;
-        NameError(line, column, message).cast();
+        std::string file_path = var->token->file;
+        NameError(file_path, line, column, message).cast();
     }
 }
 
@@ -461,8 +475,9 @@ MemoryValue* Interpreter::visit_array_access(ArrayAccess* access) {
         std::string message = "Given object is not an array.";
         int line = access->array->token->line;
         int column = access->array->token->column;
+        std::string file_path = access->array->token->file;
 
-        SyntaxError(line, column, message).cast();
+        SyntaxError(file_path, line, column, message).cast();
     }
 
     Array* array = (Array*) arr;
@@ -480,8 +495,9 @@ MemoryValue* Interpreter::visit_array_access(ArrayAccess* access) {
         std::string message = "Index out of bounds.";
         int line = access->index->token->line;
         int column = access->index->token->column;
+        std::string file_path = access->index->token->file;
 
-        SyntaxError(line, column, message).cast();
+        SyntaxError(file_path, line, column, message).cast();
     }
 
     return array->elements.at(i);
@@ -499,8 +515,9 @@ MemoryValue* Interpreter::visit_function_call(FunctionCall* func_call) {
         std::string message = "Given object is not a function.";
         int line = func_call->function->token->line;
         int column = func_call->function->token->column;
+        std::string file_path = func_call->function->token->file;
 
-        SyntaxError(line, column, message).cast();
+        SyntaxError(file_path, line, column, message).cast();
     }
 
     Function* function = (Function*) func;
@@ -515,8 +532,9 @@ MemoryValue* Interpreter::visit_function_call(FunctionCall* func_call) {
             std::string message = "Inconsistent number of arguments.";
             int line = func_call->function->token->line;
             int column = func_call->function->token->column;
+            std::string file_path = func_call->function->token->file;
 
-            SyntaxError(line, column, message).cast();
+            SyntaxError(file_path, line, column, message).cast();
         }
 
         for(int i = 0; i < func_params->variables.size(); i++) {
@@ -533,8 +551,9 @@ MemoryValue* Interpreter::visit_function_call(FunctionCall* func_call) {
 
             int line = func_call->function->token->line;
             int column = func_call->function->token->column;
+            std::string file_path = func_call->function->token->file;
 
-            SyntaxError(line, column, message).cast();
+            SyntaxError(file_path, line, column, message).cast();
         }
     }
 
@@ -663,9 +682,43 @@ SingularMemoryValue* Interpreter::visit_cast_value(CastValue* cast) {
     value_error(cast->type);
 }
 
-void Interpreter::evaluate() {
+Object* Interpreter::visit_import(Import* import) {
+    std::string path = import->path;
+    std::string name = import->name;
+
+    Object* object = (Object*) Interpreter().evaluate(path);
+
+    std::cout << object->object_memory->str() << std::endl;
+
+    memory_block->put(name, object);
+}
+
+MemoryValue* Interpreter::visit_object_dive(ObjectDive* dive) {
+    MemoryValue* parent = visit(dive->parent);
+    if(Object* object = dynamic_cast<Object*>(parent)) {
+        Memory* enclosing_memory = memory_block;
+        memory_block = object->object_memory;
+
+        MemoryValue* value =  visit(dive->child);
+
+        memory_block = enclosing_memory;
+        return value;
+    }
+
+    std::string message = "Variable is not object type.";
+    int line = dive->token->line;
+    int column = dive->token->column;
+    std::string file_path = dive->token->file;
+
+    ValueError(file_path, line, column, message).cast();
+}
+
+MemoryValue* Interpreter::evaluate(std::string path) {
+    Lexer* lexer = new Lexer(path);
+    Parser* parser = new Parser(lexer);
+
     AST* tree = parser->parse();
     semantic_analyzer->visit(tree);
-    visit(tree);
+    return visit(tree);
 }
 

@@ -13,6 +13,7 @@ enum class Type {
     BOOLEAN,
     ARRAY,
     FUNCTION,
+    OBJECT,
     NONE
 };
 
@@ -87,6 +88,20 @@ class Memory {
         void put(std::string name, MemoryValue* val);
 
         MemoryValue* get(std::string name, bool only_this_block);
+};
+
+class Object : public MemoryValue {
+    public:
+        Memory* object_memory;
+
+        Object(Memory* memory)
+        : MemoryValue(Type::OBJECT) {
+            this->object_memory = memory;
+        }
+
+        std::string str() override;
+
+        ~Object() override {}
 };
 
 #endif

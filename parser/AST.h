@@ -201,7 +201,24 @@ class CastValue : public AST {
 
         CastValue(AST* value, Token* type);
         ~CastValue() override {};
+};
 
+class Import : public AST {
+    public:
+        std::string path;
+        std::string name;
+
+        Import(Token* path, std::string name);
+        ~Import() override {};
+};
+
+class ObjectDive : public AST {
+    public:
+        AST* parent;
+        Variable* child;
+
+        ObjectDive(AST* parent, Token* colon, Variable* child);
+        ~ObjectDive() override {};
 };
 
 #endif

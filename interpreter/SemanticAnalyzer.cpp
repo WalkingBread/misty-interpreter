@@ -61,11 +61,18 @@ void SemanticAnalyzer::visit(AST* node) {
     } else if(CastValue* ast = dynamic_cast<CastValue*>(node)) {
         visit_cast_value(ast);
         
+    } else if(Import* ast = dynamic_cast<Import*>(node)) {
+        visit_import(ast);
+
+    } else if(ObjectDive* ast = dynamic_cast<ObjectDive*>(node)) {
+        visit_object_dive(ast);
+
     } else {
         std::string message = "Unknown AST branch.";
         int line = node->token->line;
         int column = node->token->column;
-        Error(line, column, message).cast();
+        std::string file_path = node->token->file;
+        Error(file_path, line, column, message).cast();
     }
 }
 
@@ -82,8 +89,9 @@ void SemanticAnalyzer::name_error(Token* token) {
     std::string message = "Variable " + token->value + " has not been declared.";
     int line = token->line;
     int column = token->column;
+    std::string file_path = token->file;
 
-    NameError(line, column, message).cast();
+    NameError(file_path, line, column, message).cast();
 }
 
 void SemanticAnalyzer::visit_binary_op(BinaryOperator* op) {
@@ -158,8 +166,9 @@ void SemanticAnalyzer::visit_var_declaration(VariableDeclaration* decl) {
             std::string message = "Variable "  + name + " has already been declared.";
             int line = var->token->line;
             int column = var->token->column;
+            std::string file_path;
 
-            NameError(line, column, message).cast();
+            NameError(file_path, line, column, message).cast();
         }
 
         Symbol* symbol = new Symbol(name);
@@ -224,4 +233,14 @@ void SemanticAnalyzer::visit_while_loop(WhileLoop* while_loop) {
 
 void SemanticAnalyzer::visit_cast_value(CastValue* cast) {
     visit(cast->value);
+}
+
+void SemanticAnalyzer::visit_import(Import* import) {
+    Symbol* import_name = new Symbol(import->name);
+    current_scope->define(import_name);
+}
+
+void SemanticAnalyzer::visit_object_dive(ObjectDive* dive) {
+    visit(dive->parent);
+    visit(dive->child);
 }
