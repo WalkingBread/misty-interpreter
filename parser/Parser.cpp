@@ -444,7 +444,7 @@ AST* Parser::eq_not_eq() {
             Token* op = current_token;
             eat(current_token->type);
 
-            comparables.push_back(factor());
+            comparables.push_back(expr());
             operators.push_back(op);
         }
         node = new Compare(comparables, operators);

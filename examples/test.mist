@@ -10,7 +10,7 @@ have x = pow2(2, 2);
 
 have i = 0;
 have arr = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
-while(i < (arr as int))  {
+while(i < arr as int)  {
     print(arr[i]);
     i = i + 1;
 };
