@@ -246,11 +246,17 @@ Return* Parser::return_statement() {
 Import* Parser::import_statement() {
     eat(TokenType::IMPORT);
     Token* path = current_token;
-    eat(TokenType::STRING);
+
+    if(current_token->type_of(TokenType::STRING) || 
+       current_token->type_of(TokenType::BUILT_IN_LIB)) 
+    {
+        eat(current_token->type);
+    } else {
+        error(path);
+    }
+
     eat(TokenType::AS);
-
     std::string name = current_token->value;
-
     eat(TokenType::IDENTIFIER);
 
     return new Import(path, name);

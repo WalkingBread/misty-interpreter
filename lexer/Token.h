@@ -49,7 +49,8 @@ enum class TokenType {
     LESS_OR_EQ,
     CLASS, 
     AS, 
-    IMPORT
+    IMPORT,
+    BUILT_IN_LIB
 };
 
 class Token {

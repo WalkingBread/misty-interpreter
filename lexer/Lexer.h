@@ -33,6 +33,7 @@ class Lexer {
         Token* number();
         Token* string();
 
+        Token* handle_build_in_lib();
         Token* handle_identifiers();
 
         Token* create_token(TokenType type, std::string value);

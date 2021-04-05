@@ -161,6 +161,18 @@ Token* Lexer::handle_identifiers() {
     return create_token(TokenType::IDENTIFIER, result);
 }
 
+Token* Lexer::handle_build_in_lib() {
+    std::string lib_name = "";
+    advance();
+
+    while(current_char != NULL && !isspace(current_char)) {
+        lib_name += current_char;
+        advance();
+    }
+
+    return create_token(TokenType::BUILT_IN_LIB, lib_name);
+}
+
 Token* Lexer::get_next_token() {
 
     while(current_char != NULL) {
@@ -182,6 +194,10 @@ Token* Lexer::get_next_token() {
 
         if(current_char == '\'') {
             return string();
+        }
+
+        if(current_char == '$') {
+            return handle_build_in_lib();
         }
 
         std::string single {current_char};

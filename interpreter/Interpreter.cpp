@@ -683,12 +683,14 @@ SingularMemoryValue* Interpreter::visit_cast_value(CastValue* cast) {
 }
 
 Object* Interpreter::visit_import(Import* import) {
-    std::string path = import->path;
     std::string name = import->name;
+    std::string path = import->path;
 
-    Object* object = (Object*) Interpreter().evaluate(path);
+    if(import->token->type_of(TokenType::BUILT_IN_LIB)) {
+        std::cout << "Built in lib" << std::endl;
+    }
 
-    std::cout << object->object_memory->str() << std::endl;
+    Object* object = (Object*) Interpreter().evaluate(directory + path);
 
     memory_block->put(name, object);
 }
@@ -713,7 +715,18 @@ MemoryValue* Interpreter::visit_object_dive(ObjectDive* dive) {
     ValueError(file_path, line, column, message).cast();
 }
 
+std::string get_dir_from_path(std::string path) {
+    std::string directory;
+    const size_t last_slash_index = path.find_last_of('\\/');
+    if (std::string::npos != last_slash_index) {
+        directory = path.substr(0, last_slash_index + 1);
+    }
+    return directory;
+}
+
 MemoryValue* Interpreter::evaluate(std::string path) {
+    this->directory = get_dir_from_path(path);
+
     Lexer* lexer = new Lexer(path);
     Parser* parser = new Parser(lexer);
 

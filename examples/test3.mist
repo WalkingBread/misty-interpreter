@@ -1,6 +1,7 @@
 have x = 10;
 
-import 'examples/test4.mist' as object; 
+import 'test4.mist' as object; 
+import $time as time;
 
 have val = object:y;
 have data = object:data;

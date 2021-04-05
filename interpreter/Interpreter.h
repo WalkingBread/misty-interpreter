@@ -18,6 +18,8 @@ class Interpreter {
         MemoryValue* evaluate(std::string path);
 
         Memory* memory_block;
+
+        std::string directory;
     
     private:
         SemanticAnalyzer* semantic_analyzer;
