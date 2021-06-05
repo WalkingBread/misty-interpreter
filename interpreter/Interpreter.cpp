@@ -688,7 +688,8 @@ Object* Interpreter::visit_import(Import* import) {
 
     if(import->token->type_of(TokenType::BUILT_IN_LIB)) {
         std::cout << "Built in lib" << std::endl;
-    }
+        return NULL;
+    } 
 
     Object* object = (Object*) Interpreter().evaluate(directory + path);
 
@@ -701,7 +702,7 @@ MemoryValue* Interpreter::visit_object_dive(ObjectDive* dive) {
         Memory* enclosing_memory = memory_block;
         memory_block = object->object_memory;
 
-        MemoryValue* value =  visit(dive->child);
+        MemoryValue* value = visit(dive->child);
 
         memory_block = enclosing_memory;
         return value;

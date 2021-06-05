@@ -1,8 +1,5 @@
 #include <iostream>
-#include <fstream>
 #include <string>
-
-#include "lexer/Token.h"
 #include "interpreter/Interpreter.h"
 
 int main(int argc, char** argv) {
@@ -11,7 +8,7 @@ int main(int argc, char** argv) {
     Interpreter* interpreter = new Interpreter();
 
     interpreter->evaluate(path);
-    std::cout << interpreter->memory_block->str();
+    //std::cout << interpreter->memory_block->str();
 
     return 0;
 }

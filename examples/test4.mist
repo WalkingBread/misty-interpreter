@@ -1,4 +1,4 @@
-have y = 'fuck the system';
+have y = 'xyz';
 print(y);
 
 have data = [1, 2, 3, 4];
